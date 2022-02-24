@@ -6,11 +6,15 @@ async function run() {
   logConfig(config);
   await withElectrumClient(async client => {
     const tx = await client.blockchain_transaction_get(
-      '60479f4221a9869ff648687aa4e3497b71620e553fdb1f71c18bfaa8e2506456',
+      '7bd503fde9684573bc276613b0a1176eea1116f95c5b0e30b41649add7ac770b',
       true
     );
-    console.log('tx', tx);
-    console.log('Client works');
+    if (typeof tx === 'undefined') {
+      throw new Error('Invalid config.');
+    } else {
+      console.log('tx', tx);
+      console.log('Client works');
+    }
     return;
   });
 }

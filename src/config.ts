@@ -146,9 +146,9 @@ export function getElectrumConfig() {
   switch (networkKey) {
     case 'testnet':
       return {
-        host: defaultHost || 'electrum.blockstream.info',
-        port: defaultPort === undefined ? 60001 : defaultPort,
-        protocol: defaultProtocol || 'tcp',
+        host: defaultHost || 'blackie.c3-soft.com',
+        port: defaultPort === undefined ? 57006 : defaultPort,
+        protocol: defaultProtocol || 'ssl',
       };
     case 'mocknet':
       return {
