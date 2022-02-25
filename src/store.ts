@@ -10,11 +10,16 @@ export enum RedisKeys {
   PendingFinalizedOutbound = 'PendingFinalizedOutbound',
 }
 
-export function createRedisClient() {
+export function redisKeyPrefix() {
   const network = getNetworkKey();
+  return `swapy-${network}`;
+}
+
+export function createRedisClient() {
   const url = process.env.REDIS_URL || process.env.REDISTOGO_URL;
   const family = process.env.REDIS_FAMILY ? parseInt(process.env.REDIS_FAMILY, 10) : 4;
-  const client = new Redis(url, { keyPrefix: `swapy-${network}`, family });
+  const keyPrefix = redisKeyPrefix();
+  const client = new Redis(url, { keyPrefix, family });
   return client;
 }
 
@@ -94,4 +99,35 @@ export async function setFinalizedOutbound(client: RedisClient, id: bigint, fina
 
 export async function removeAll(client: RedisClient) {
   await client.flushall();
+}
+
+// helpers
+
+export async function getAllKeys(client: RedisClient): Promise<string[]> {
+  const keyPrefix = redisKeyPrefix();
+  return new Promise(resolve => {
+    const keys: string[] = [];
+    const stream = client.scanStream({
+      count: 1000,
+    });
+    stream.on('data', (res: string[]) => {
+      const fixedKeys = res.map(key => key.slice(keyPrefix.length));
+      keys.push(...fixedKeys);
+    });
+    stream.on('end', () => {
+      resolve(keys);
+    });
+  });
+}
+
+export async function getAllKeysAndValues(client: RedisClient) {
+  const keys = await getAllKeys(client);
+  const values = await client.mget(keys);
+  const combined: [string, string | null][] = [];
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    const value = values[i];
+    combined.push([key, value]);
+  }
+  return combined;
 }
