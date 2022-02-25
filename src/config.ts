@@ -4,6 +4,7 @@ import { StacksMainnet, StacksMocknet, StacksNetwork, StacksTestnet } from 'micr
 import { getPublicKey as _getPublicKey } from 'noble-secp256k1';
 import { accounts } from '../src/clarigen';
 import { logger } from './logger';
+import { makeStxAddress } from './utils';
 
 export function getEnv(key: string) {
   const value = process.env[key];
@@ -63,20 +64,17 @@ export function getStxPrivateKey() {
   return getEnv('OPERATOR_STX_KEY');
 }
 
-export function getCompressedKey(key: string) {
-  if (key.length === 66) {
-    const compressed = key.slice(64);
-    return {
-      key: key.slice(0, 64),
-      isCompressed: compressed === '01',
-    };
+export function getStxNetworkVersion() {
+  const networkKey = getNetworkKey();
+  if (networkKey === 'mainnet') {
+    return StacksNetworkVersion.mainnetP2PKH;
   }
-  return { key, isCompressed: true };
+  return StacksNetworkVersion.testnetP2PKH;
 }
 
 export function getStxAddress() {
-  const { key, isCompressed } = getCompressedKey(getStxPrivateKey());
-  return privateKeyToStxAddress(key, StacksNetworkVersion.testnetP2PKH, isCompressed);
+  const networkVersion = getStxNetworkVersion();
+  return makeStxAddress(getStxPrivateKey(), networkVersion);
 }
 
 export function getNetworkKey() {
