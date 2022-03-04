@@ -9,7 +9,10 @@
     "start": "NODE_ENV=development node -r @swc-node/register scripts/server.ts",
     "server:dev": "NODE_ENV=development yarn r scripts/server.ts",
     "server:dev:watch": "nodemon --verbose -x 'yarn server:dev'",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "generate-keys": "yarn r scripts/generate-keys.ts",
+    "check-config": "yarn r scripts/check-config.ts",
+    "register-supplier": "yarn r scripts/register-supplier.ts"
   },
   "author": "Hank Stoever",
   "license": "ISC",
@@ -43,6 +46,7 @@
     "@types/ioredis": "^4.28.1",
     "@typescript-eslint/eslint-plugin": "^4.26.0",
     "@typescript-eslint/parser": "^4.26.0",
+    "app.json": "^1.3.0",
     "eslint": "7",
     "eslint-plugin-prettier": "^3.1.4",
     "nodemon": "^2.0.15",

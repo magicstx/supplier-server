@@ -1,0 +1,26 @@
+{
+  "name": "Magic Supplier Server",
+  "description": "A server for managing and operating a Magic supplier",
+  "repository": "https://github.com/magicstx/supplier-server",
+  "addons": [
+    "redistogo:nano"
+  ],
+  "env": {
+    "OPERATOR_ID": {
+      "description": "Your supplier ID",
+      "required": true
+    },
+    "OPERATOR_STX_KEY": {
+      "description": "Your STX private key",
+      "required": true
+    },
+    "OPERATOR_BTC_KEY": {
+      "description": "Your BTC private key",
+      "required": true
+    },
+    "OPERATOR_NETWORK": {
+      "description": "Your network ('testnet' or 'mainnet')",
+      "required": true
+    }
+  }
+}

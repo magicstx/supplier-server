@@ -1,5 +1,7 @@
 import { privateKeyToStxAddress, StacksNetworkVersion } from 'micro-stacks/crypto';
 import { hashSha256 } from 'micro-stacks/crypto-sha';
+import BigNumber from 'bignumber.js';
+import { IntegerType } from 'micro-stacks/common';
 
 export function reverseBuffer(buffer: Buffer): Buffer {
   if (buffer.length < 1) return buffer;
@@ -35,4 +37,21 @@ export function getCompressedKey(key: string) {
 export function makeStxAddress(privateKey: string, networkVersion: StacksNetworkVersion): string {
   const { key, isCompressed } = getCompressedKey(privateKey);
   return privateKeyToStxAddress(key, networkVersion, isCompressed);
+}
+
+export function intToString(int: IntegerType) {
+  const str = typeof int === 'bigint' ? int.toString() : String(int);
+  return str;
+}
+
+export function bpsToPercent(bps: IntegerType) {
+  return new BigNumber(intToString(bps)).dividedBy(100).toString();
+}
+
+export function satsToBtc(sats: IntegerType, minDecimals?: number) {
+  const n = new BigNumber(intToString(sats)).shiftedBy(-8).decimalPlaces(8);
+  if (typeof minDecimals === 'undefined') return n.toFormat();
+  const rounded = n.toFormat(minDecimals);
+  const normal = n.toFormat();
+  return rounded.length > normal.length ? rounded : normal;
 }

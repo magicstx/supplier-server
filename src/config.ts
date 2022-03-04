@@ -81,19 +81,26 @@ export function getNetworkKey() {
   return getEnv('OPERATOR_NETWORK');
 }
 
-// Fetch server config. Will throw an error if missing config.
-export function validateConfig() {
+export function validateKeys() {
   return {
     btcAddress: getBtcAddress(),
-    operatorId: getOperatorId(),
     stxAddress: getStxAddress(),
     btcNetwork: getNetworkKey(),
   };
 }
 
+// Fetch server config. Will throw an error if missing config.
+export function validateConfig() {
+  const keys = validateKeys();
+  return {
+    ...keys,
+    operatorId: getOperatorId(),
+  };
+}
+
 export type PublicConfig = ReturnType<typeof validateConfig>;
 
-export function logConfig(config: PublicConfig) {
+export function logConfig(config: Record<string, string | number>) {
   const message: string[] = ['Server config:'];
   let k: keyof typeof config;
   const electrumConfig = getElectrumConfig();
