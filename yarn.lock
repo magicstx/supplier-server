@@ -80,25 +80,20 @@
   resolved "https://registry.yarnpkg.com/@napi-rs/triples/-/triples-1.1.0.tgz#88c35b72e79a20b79bb4c9b3e2817241a1c9f4f9"
   integrity sha512-XQr74QaLeMiqhStEhLn1im9EOMnkypp7MZOwQhGzqp2Weu5eQJbpPxWxixxlYRKWPOmJjsk6qYfYH9kq43yc2w==
 
-"@noble/hashes@0.4.4":
-  version "0.4.4"
-  resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-0.4.4.tgz#1662c9ebef111fc8952dc35fffb4d04043def3f4"
-  integrity sha512-crq2J2g8nIcczVZjYjIQ73GafloqJ6sSual8I/iC8iacMyHwI/ZVskR8Jn8ZmYBq48VC4G+16d2R0SYWVARYGg==
-
 "@noble/hashes@1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.0.0.tgz#d5e38bfbdaba174805a4e649f13be9a9ed3351ae"
   integrity sha512-DZVbtY62kc3kkBtMHqwCOfXrT/hnoORy5BJ4+HU1IR59X0KWAOqsfzQPcUl/lQLlG7qXbe/fZ3r/emxtAl+sqg==
 
-"@noble/secp256k1@1.3.3":
-  version "1.3.3"
-  resolved "https://registry.yarnpkg.com/@noble/secp256k1/-/secp256k1-1.3.3.tgz#238160421281ffa9afac721361e20d3b8c99322c"
-  integrity sha512-uzKQA9AzoypXGQusSQahpZbNYYnzZblOgr4AjNjI9s3cGy15V+exxmEnjcC6L/slVKMR30NC+srp00Ch6Pm2hg==
-
 "@noble/secp256k1@1.5.2":
   version "1.5.2"
   resolved "https://registry.yarnpkg.com/@noble/secp256k1/-/secp256k1-1.5.2.tgz#40399e4fba54f588fda14fc03a4499044fdcab24"
   integrity sha512-5mzA40W2q55VCRuC9XzmkiEnODdY0c5a7qsK2QcOfI5/MuVQyBaWGQyE6YOEF7kDwp+tDVWGsCDVJUME+wsWWw==
+
+"@noble/secp256k1@1.5.5":
+  version "1.5.5"
+  resolved "https://registry.yarnpkg.com/@noble/secp256k1/-/secp256k1-1.5.5.tgz#315ab5745509d1a8c8e90d0bdf59823ccf9bcfc3"
+  integrity sha512-sZ1W6gQzYnu45wPrWx8D3kwI2/U29VYTx9OjbDAd7jwRItJ0cSTMPRL/C8AWZFn9kWFLQGqEXVEE86w4Z8LpIQ==
 
 "@node-rs/helper@^1.0.0":
   version "1.2.1"
@@ -2526,13 +2521,13 @@ methods@0.0.1:
   resolved "https://registry.yarnpkg.com/methods/-/methods-0.0.1.tgz#277c90f8bef39709645a8371c51c3b6c648e068c"
   integrity sha1-J3yQ+L7zlwlkWoNxxRw7bGSOBow=
 
-micro-stacks@0.1.13:
-  version "0.1.13"
-  resolved "https://registry.yarnpkg.com/micro-stacks/-/micro-stacks-0.1.13.tgz#37769b8354fa8dcbaa16a14ac7534b6377b66254"
-  integrity sha512-4wwcCYoPwj/qEGunob+ynJ4GGK7mn8k/VcsvSdYVbqyZ98Z2CbdvzasI9CbiDJ1iFJP3pnQ2RFRYe5wfSsJS1g==
+micro-stacks@0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/micro-stacks/-/micro-stacks-0.3.0.tgz#da3ed81d5417af3378d9484845ee4d480614c53d"
+  integrity sha512-RHOMtMaptyAffSQvwR2mvLyN3y72PP0cq3qaTY74sFt/yPzQa4eihQHD2Fbw9eI8uean20mqZ4e+A+nLUmQeYQ==
   dependencies:
-    "@noble/hashes" "0.4.4"
-    "@noble/secp256k1" "1.3.3"
+    "@noble/hashes" "1.0.0"
+    "@noble/secp256k1" "1.5.5"
 
 micro-stacks@^0.2.0:
   version "0.2.2"

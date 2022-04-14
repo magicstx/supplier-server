@@ -55,3 +55,7 @@ export function satsToBtc(sats: IntegerType, minDecimals?: number) {
   const normal = n.toFormat();
   return rounded.length > normal.length ? rounded : normal;
 }
+
+export function shiftInt(int: IntegerType, shift: number) {
+  return new BigNumber(intToString(int)).shiftedBy(shift);
+}

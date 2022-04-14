@@ -48,13 +48,14 @@ export function getBtcAddress() {
 
 export function getContractAddress() {
   const networkKey = getNetworkKey();
+  const defaultAddress = process.env.CONTRACT_ADDRESS;
   switch (networkKey) {
     case 'mocknet':
       return accounts.deployer.address;
     case 'mainnet':
       throw new Error('No known contract address for mainnet');
     case 'testnet':
-      return 'ST1VSQJ1BGM3DF6F28PKJR8P4SYDMFAT5CZNGG9YT';
+      return defaultAddress || 'ST1VSQJ1BGM3DF6F28PKJR8P4SYDMFAT5CZNGG9YT';
     default:
       throw new Error(`Invalid OPERATOR_NETWORK: ${networkKey}`);
   }

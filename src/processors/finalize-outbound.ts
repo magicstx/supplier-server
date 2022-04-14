@@ -1,5 +1,5 @@
 import ElectrumClient from 'electrum-client-sl';
-import { getStacksBlock } from '../stacks-api';
+import { confirmationsToHeight, findStacksBlockAtHeight, getStacksBlock } from '../stacks-api';
 import { BridgeContract } from '../clarigen';
 import { reverseBuffer } from '../utils';
 import { getStxAddress } from '../config';
@@ -13,18 +13,26 @@ import {
 } from '../store';
 import { withElectrumClient } from '../wallet';
 import { fetchAccountNonce } from '../stacks-api';
+import { hexToBytes } from 'micro-stacks/common';
 
 type MintParams = Parameters<BridgeContract['escrowSwap']>;
 type BlockParam = MintParams[0];
-type ProofParam = MintParams[2];
+type ProofParam = MintParams[3];
 
 async function txData(client: ElectrumClient, txid: string) {
   const tx = await client.blockchain_transaction_get(txid, true);
 
+  const burnHeight = await confirmationsToHeight(tx.confirmations);
+  const { header, stacksHeight, prevBlocks } = await findStacksBlockAtHeight(
+    burnHeight,
+    [],
+    client
+  );
+
   const blockHash = tx.blockhash;
 
-  const { burnHeight, stacksHeight } = await getStacksBlock(blockHash);
-  const header = await client.blockchain_block_header(burnHeight);
+  // const { burnHeight, stacksHeight } = await getStacksBlock(blockHash);
+  // const header = await client.blockchain_block_header(burnHeight);
 
   const merkle = await client.blockchain_transaction_getMerkle(txid, burnHeight);
   const hashes = merkle.merkle.map(hash => {
@@ -49,6 +57,7 @@ async function txData(client: ElectrumClient, txid: string) {
     proof: proofArg,
     block: blockArg,
     tx: txHex,
+    prevBlocks: prevBlocks.map(b => hexToBytes(b)),
   };
 }
 
@@ -69,7 +78,14 @@ export async function finalizeOutbound({
   try {
     const stxTxid = await withElectrumClient(async client => {
       const data = await txData(client, txid);
-      const finalizeTx = bridge.finalizeOutboundSwap(data.block, data.tx, data.proof, 0n, id);
+      const finalizeTx = bridge.finalizeOutboundSwap(
+        data.block,
+        data.prevBlocks,
+        data.tx,
+        data.proof,
+        0n,
+        id
+      );
       const receipt = await provider.tx(finalizeTx, { nonce });
       return receipt.txId;
     });

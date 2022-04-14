@@ -1,7 +1,13 @@
 import 'cross-fetch/polyfill';
 import { AddressNonces, Transaction } from '@stacks/stacks-blockchain-api-types';
 import { getContractAddress, getStxNetwork } from './config';
-import { fetchAccountTransactions, fetchBlockByBurnBlockHash } from 'micro-stacks/api';
+import {
+  fetchAccountTransactions,
+  fetchBlockByBurnBlockHash,
+  fetchBlockByBurnBlockHeight,
+  fetchCoreApiInfo,
+} from 'micro-stacks/api';
+import ElectrumClient from 'electrum-client-sl';
 
 export async function getStacksBlock(
   hash: string
@@ -21,6 +27,54 @@ export async function getStacksBlock(
     console.error(`Unable to find stacks block for burn hash ${hash}`);
     throw new Error(`Unable to find stacks block for burn hash ${hash}`);
   }
+}
+
+export async function getStacksHeight(burnHeight: number) {
+  const network = getStxNetwork();
+  try {
+    const url = network.getCoreApiUrl();
+    const block = await fetchBlockByBurnBlockHeight({
+      url,
+      burn_block_height: burnHeight,
+    });
+    return block.height;
+  } catch (error) {
+    return undefined;
+  }
+}
+
+interface StacksBlockByHeight {
+  header: string;
+  prevBlocks: string[];
+  stacksHeight: number;
+}
+export async function findStacksBlockAtHeight(
+  height: number,
+  prevBlocks: string[],
+  electrumClient: ElectrumClient
+): Promise<StacksBlockByHeight> {
+  const [header, stacksHeight] = await Promise.all([
+    electrumClient.blockchain_block_header(height),
+    getStacksHeight(height),
+  ]);
+  if (typeof stacksHeight !== 'undefined') {
+    return {
+      header,
+      prevBlocks,
+      stacksHeight,
+    };
+  }
+  prevBlocks.unshift(header);
+  return findStacksBlockAtHeight(height + 1, prevBlocks, electrumClient);
+}
+
+export async function confirmationsToHeight(confirmations: number) {
+  const network = getStxNetwork();
+  const url = network.getCoreApiUrl();
+  const nodeInfo = await fetchCoreApiInfo({ url });
+  const curHeight = nodeInfo.burn_block_height;
+  const height = curHeight - confirmations + 1;
+  return height;
 }
 
 export async function getContractTxUntil(

@@ -9,7 +9,6 @@ export const electrumClient = () => {
   const electrumConfig = {
     ...envConfig,
   };
-  console.log('electrumConfig', electrumConfig);
   return new ElectrumClient(electrumConfig.host, electrumConfig.port, electrumConfig.protocol);
 };
 

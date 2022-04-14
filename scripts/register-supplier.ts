@@ -1,8 +1,17 @@
 import { prompt } from 'inquirer';
+import 'cross-fetch/polyfill';
 import { stacksProvider, bridgeContract } from '../src/stacks';
-import { bpsToPercent, satsToBtc } from '../src/utils';
-import { getPublicKey, validateConfig, validateKeys } from '../src/config';
+import { bpsToPercent, satsToBtc, shiftInt } from '../src/utils';
+import {
+  getContractAddress,
+  getPublicKey,
+  getStxAddress,
+  getStxNetwork,
+  validateConfig,
+  validateKeys,
+} from '../src/config';
 import { PostConditionMode } from 'micro-stacks/transactions';
+import { fetchAccountBalances } from 'micro-stacks/api';
 
 interface Answers {
   inboundFee: number;
@@ -25,15 +34,32 @@ async function run() {
     return;
   }
 
+  const stxAddress = getStxAddress();
+  const network = getStxNetwork();
+  const contractAddress = getContractAddress();
+  const balances = await fetchAccountBalances({
+    url: network.getCoreApiUrl(),
+    principal: stxAddress,
+  });
+
+  const xbtcId = `${contractAddress}.xbtc::xbtc`;
+  const stxBalance = shiftInt(balances.stx.balance, -6);
+  const xbtcBalanceSats = balances.fungible_tokens[xbtcId]?.balance || '0';
+  const xbtcBalance = satsToBtc(xbtcBalanceSats);
+
+  console.log(`STX Address: ${stxAddress}`);
+  console.log(`STX Balance: ${stxBalance.toFormat()} STX`);
+  console.log(`xBTC Balance: ${xbtcBalance} xBTC`);
+
   const answers = await prompt<Answers>([
-    { name: 'inboundFee', message: 'Inbound fee (basis points)', type: 'number' },
+    { name: 'inboundFee', message: 'Inbound fee (basis points)', type: 'number', default: '10' },
     {
       name: 'inboundBaseFee',
       message: 'Inbound base fee (satoshis)',
       type: 'number',
       default: '500',
     },
-    { name: 'outboundFee', message: 'Outbound fee (basis points)', type: 'number' },
+    { name: 'outboundFee', message: 'Outbound fee (basis points)', type: 'number', default: '10' },
     {
       name: 'outboundBaseFee',
       message: 'Outbound base fee (satoshis)',
@@ -42,7 +68,7 @@ async function run() {
     },
     {
       name: 'xbtcFunds',
-      message: 'How much xBTC do you want to supply (in satoshis)?',
+      message: `How much xBTC do you want to supply (in satoshis)? Max: ${xbtcBalanceSats}`,
       type: 'number',
     },
     {
@@ -75,7 +101,7 @@ async function run() {
   if (!ok) return;
 
   const btcPublicKey = getPublicKey();
-  const registerTx = bridge.registerOperator(
+  const registerTx = bridge.registerSupplier(
     Uint8Array.from(btcPublicKey),
     inboundFee,
     outboundFee,

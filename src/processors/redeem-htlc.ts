@@ -27,7 +27,7 @@ export async function processFinalizedInbound(tx: Transaction, client: RedisClie
     const provider = stacksProvider();
     const swap = await provider.ro(bridge.getInboundSwap(txid));
     const operatorId = getOperatorId();
-    if (swap?.operator !== BigInt(operatorId)) return;
+    if (swap?.supplier !== BigInt(operatorId)) return;
     const preimage = await provider.ro(bridge.getPreimage(txid));
     if (!preimage) return;
     const redeemTxid = await redeem(txidHex, preimage);
