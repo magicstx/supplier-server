@@ -14,7 +14,6 @@
     "check-config": "yarn r scripts/check-config.ts",
     "register-supplier": "yarn r scripts/register-supplier.ts"
   },
-  "author": "Hank Stoever",
   "license": "ISC",
   "prettier": "@stacks/prettier-config",
   "dependencies": {
