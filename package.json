@@ -12,7 +12,10 @@
     "typecheck": "tsc --noEmit",
     "generate-keys": "yarn r scripts/generate-keys.ts",
     "check-config": "yarn r scripts/check-config.ts",
-    "register-supplier": "yarn r scripts/register-supplier.ts"
+    "register-supplier": "yarn r scripts/register-supplier.ts",
+    "eslint:ci": "eslint 'src/**/*.ts' 'scripts/**/*.ts'",
+    "lint:prettier": "prettier --check \"{src,scripts}/**/*.{ts,tsx}\"",
+    "lint": "yarn eslint:ci && yarn lint:prettier"
   },
   "license": "ISC",
   "prettier": "@stacks/prettier-config",
