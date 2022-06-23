@@ -14,6 +14,7 @@ import { payments, Psbt, Transaction } from 'bitcoinjs-lib';
 import { logger } from './logger';
 import { fetchAccountBalances } from 'micro-stacks/api';
 import { bridgeContract, stacksProvider } from './stacks';
+import BigNumber from 'bignumber.js';
 
 export const electrumClient = () => {
   const envConfig = getElectrumConfig();
@@ -168,7 +169,7 @@ export async function getBtcBalance() {
     const balance = await client.blockchain_scripthash_getBalance(scriptHash.toString('hex'));
     const { confirmed, unconfirmed } = balance;
     const total = confirmed + unconfirmed;
-    const btc = parseFloat(satsToBtc(total));
+    const btc = shiftInt(total, -8).toNumber();
     return {
       confirmed,
       total,
@@ -189,10 +190,9 @@ export async function getStxBalance() {
   const xbtcId = `${contractAddress}.xbtc::xbtc`;
   const stxBalance = shiftInt(balances.stx.balance, -6);
   const xbtcSats = balances.fungible_tokens[xbtcId]?.balance || '0';
-  const xbtcBalance = satsToBtc(xbtcSats);
   return {
     stx: stxBalance.decimalPlaces(6).toNumber(),
-    xbtc: parseFloat(xbtcBalance),
+    xbtc: shiftInt(xbtcSats, -8).toNumber(),
     xbtcSats,
   };
 }
@@ -203,7 +203,7 @@ export async function getXbtcFunds() {
   const supplierId = getOperatorId();
   const funds = await provider.ro(bridge.getFunds(supplierId));
   return {
-    xbtc: parseFloat(satsToBtc(funds)),
+    xbtc: shiftInt(funds, -8).toNumber(),
   };
 }
 

@@ -52,6 +52,8 @@ async function run() {
   const xbtcBalance = satsToBtc(xbtcBalanceSats);
   const btcBalances = await getBtcBalance();
   const btcBalance = satsToBtc(btcBalances.total);
+  // console.log(parseFloat(stxB));
+  console.log(stxBalances);
 
   console.log(`STX Address: ${stxAddress}`);
   console.log(`STX Balance: ${stxBalances.stx} STX`);
