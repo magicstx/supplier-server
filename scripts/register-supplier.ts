@@ -13,6 +13,7 @@ import {
 import { PostConditionMode } from 'micro-stacks/transactions';
 import { fetchAccountBalances } from 'micro-stacks/api';
 import BigNumber from 'bignumber.js';
+import { getBtcBalance, getStxBalance } from '../src/wallet';
 
 interface Answers {
   inboundFee: number;
@@ -43,14 +44,19 @@ async function run() {
     principal: stxAddress,
   });
 
+  const stxBalances = await getStxBalance();
+
   const xbtcId = `${contractAddress}.xbtc::xbtc`;
   const stxBalance = shiftInt(balances.stx.balance, -6);
   const xbtcBalanceSats = balances.fungible_tokens[xbtcId]?.balance || '0';
   const xbtcBalance = satsToBtc(xbtcBalanceSats);
+  const btcBalances = await getBtcBalance();
+  const btcBalance = satsToBtc(btcBalances.total);
 
   console.log(`STX Address: ${stxAddress}`);
-  console.log(`STX Balance: ${stxBalance.toFormat()} STX`);
-  console.log(`xBTC Balance: ${xbtcBalance} xBTC`);
+  console.log(`STX Balance: ${stxBalances.stx} STX`);
+  console.log(`xBTC Balance: ${stxBalances.xbtc} xBTC`);
+  console.log(`BTC Balance: ${btcBalance} BTC`);
 
   const answers = await prompt<Answers>([
     { name: 'inboundFee', message: 'Inbound fee (basis points)', type: 'number', default: '10' },

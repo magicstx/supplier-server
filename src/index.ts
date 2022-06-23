@@ -7,7 +7,7 @@ import { processRoute } from './routes/process';
 import { logConfig, validateConfig } from './config';
 import { logger } from './logger';
 import { flushRoute } from './routes/flush';
-import { processJob } from './jobs';
+import { balancesJob, processJob } from './jobs';
 import { infoRoute } from './routes/info';
 
 export const api = async () => {
@@ -30,6 +30,7 @@ export const api = async () => {
   await server.register(fastifySchedulePlugin);
   const job = processJob(redis);
   server.scheduler.addSimpleIntervalJob(job);
+  server.scheduler.addSimpleIntervalJob(balancesJob());
   // server.addHook('onClose', async (fastify, done) => {
   //   await redis.disconnect();
   //   done();

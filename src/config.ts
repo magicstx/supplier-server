@@ -102,16 +102,8 @@ export function validateConfig() {
 export type PublicConfig = ReturnType<typeof validateConfig>;
 
 export function logConfig(config: Record<string, string | number>) {
-  const message: string[] = ['Server config:'];
-  let k: keyof typeof config;
   const electrumConfig = getElectrumConfig();
-  for (k in config) {
-    message.push(`${k}: ${config[k]}`);
-  }
-  message.push(`Electrum host: ${electrumConfig.host}`);
-  message.push(`Electrum port: ${electrumConfig.port}`);
-  message.push(`Electrum protocol: ${electrumConfig.protocol}`);
-  logger.debug({ ...config, ...electrumConfig, topic: 'start' }, message.join('\n'));
+  logger.debug({ ...config, electrumConfig, topic: 'start' }, 'Server config:');
 }
 
 export function getBtcNetwork(): networks.Network {

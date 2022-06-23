@@ -1,8 +1,19 @@
 import ElectrumClient, { Unspent } from 'electrum-client-sl';
-import { getBtcTxUrl, getScriptHash } from './utils';
-import { getBtcPayment, getBtcNetwork, getBtcSigner, getElectrumConfig } from './config';
+import { getBtcTxUrl, getScriptHash, satsToBtc, shiftInt } from './utils';
+import {
+  getBtcPayment,
+  getBtcNetwork,
+  getBtcSigner,
+  getElectrumConfig,
+  getStxNetwork,
+  getStxAddress,
+  getContractAddress,
+  getOperatorId,
+} from './config';
 import { payments, Psbt, Transaction } from 'bitcoinjs-lib';
 import { logger } from './logger';
+import { fetchAccountBalances } from 'micro-stacks/api';
+import { bridgeContract, stacksProvider } from './stacks';
 
 export const electrumClient = () => {
   const envConfig = getElectrumConfig();
@@ -146,4 +157,61 @@ export async function tryBroadcast(client: ElectrumClient, tx: Transaction) {
     await client.close();
     throw error;
   }
+}
+
+export async function getBtcBalance() {
+  return withElectrumClient(async client => {
+    const { output } = getBtcPayment();
+    if (!output) throw new Error('Unable to get output for operator wallet.');
+
+    const scriptHash = getScriptHash(output);
+    const balance = await client.blockchain_scripthash_getBalance(scriptHash.toString('hex'));
+    const { confirmed, unconfirmed } = balance;
+    const total = confirmed + unconfirmed;
+    const btc = parseFloat(satsToBtc(total));
+    return {
+      confirmed,
+      total,
+      unconfirmed,
+      btc,
+    };
+  });
+}
+
+export async function getStxBalance() {
+  const network = getStxNetwork();
+  const stxAddress = getStxAddress();
+  const balances = await fetchAccountBalances({
+    url: network.getCoreApiUrl(),
+    principal: stxAddress,
+  });
+  const contractAddress = getContractAddress();
+  const xbtcId = `${contractAddress}.xbtc::xbtc`;
+  const stxBalance = shiftInt(balances.stx.balance, -6);
+  const xbtcSats = balances.fungible_tokens[xbtcId]?.balance || '0';
+  const xbtcBalance = satsToBtc(xbtcSats);
+  return {
+    stx: stxBalance.decimalPlaces(6).toNumber(),
+    xbtc: parseFloat(xbtcBalance),
+    xbtcSats,
+  };
+}
+
+export async function getXbtcFunds() {
+  const bridge = bridgeContract();
+  const provider = stacksProvider();
+  const supplierId = getOperatorId();
+  const funds = await provider.ro(bridge.getFunds(supplierId));
+  return {
+    xbtc: parseFloat(satsToBtc(funds)),
+  };
+}
+
+export async function getBalances() {
+  const [stx, btc, xbtc] = await Promise.all([getStxBalance(), getBtcBalance(), getXbtcFunds()]);
+  return {
+    stx,
+    btc,
+    xbtc,
+  };
 }
