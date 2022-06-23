@@ -93,7 +93,6 @@ interface SendBtc {
 
 export async function sendBtc(opts: SendBtc) {
   const { client, ...logOpts } = opts;
-  logger.debug({ ...logOpts, topic: 'sendBtc' });
   const { coins, fee, total } = await selectCoins(opts.amount, client);
   const network = getBtcNetwork();
 
@@ -127,7 +126,10 @@ export async function sendBtc(opts: SendBtc) {
   psbt.finalizeAllInputs();
 
   const final = psbt.extractTransaction();
-  await tryBroadcast(client, final);
+  const txid = await tryBroadcast(client, final);
+  if (txid) {
+    logger.debug({ ...logOpts, txid, txUrl: getBtcTxUrl(txid), topic: 'sendBtc' });
+  }
   return final;
 }
 
@@ -135,14 +137,17 @@ export async function tryBroadcast(client: ElectrumClient, tx: Transaction) {
   const id = tx.getId();
   try {
     await client.blockchain_transaction_broadcast(tx.toHex());
+    const amount = tx.outs[0].value;
     logger.info(
       {
         topic: 'btcBroadcast',
         txid: id,
         txUrl: getBtcTxUrl(id),
+        amount,
       },
       `Broadcasted BTC tx ${id}`
     );
+    return id;
   } catch (error) {
     logger.error({ broadcastError: error, txId: id }, `Error broadcasting: ${id}`);
     if (typeof error === 'string' && !error.includes('Transaction already in block chain')) {

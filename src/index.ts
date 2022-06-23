@@ -31,10 +31,6 @@ export const api = async () => {
   const job = processJob(redis);
   server.scheduler.addSimpleIntervalJob(job);
   server.scheduler.addSimpleIntervalJob(balancesJob());
-  // server.addHook('onClose', async (fastify, done) => {
-  //   await redis.disconnect();
-  //   done();
-  // });
 
   await server.register(processRoute);
   await server.register(flushRoute);

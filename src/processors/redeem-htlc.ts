@@ -7,6 +7,7 @@ import { logger as _logger } from '../logger';
 import { tryBroadcast, withElectrumClient } from '../wallet';
 import { bridgeContract, stacksProvider } from '../stacks';
 import { bytesToHex, hexToBytes } from 'micro-stacks/common';
+import { getBtcTxUrl, satsToBtc } from '../utils';
 
 const logger = _logger.child({ topic: 'redeemHTLC' });
 
@@ -33,7 +34,6 @@ export async function processFinalizedInbound(tx: Transaction, client: RedisClie
     if (preimage === null) return;
     logger.info({ preimage: bytesToHex(preimage) });
     const redeemTxid = await redeem(txidHex, preimage);
-    logger.info({ redeemTxid }, `Redeemed inbound HTLC`);
     await setRedeemedHTLC(client, txidHex, redeemTxid);
     return true;
   } catch (error) {
@@ -93,6 +93,11 @@ export async function redeem(txid: string, preimage: Uint8Array) {
     const final = psbt.extractTransaction();
     const finalId = final.getId();
     await tryBroadcast(client, final);
+    const btcAmount = satsToBtc(swap.sats);
+    logger.info(
+      { redeemTxid: finalId, txUrl: getBtcTxUrl(finalId), htlcTxid: txid, amount: swap.sats },
+      `Redeemed inbound HTLC for ${btcAmount} BTC`
+    );
     return finalId;
   });
 }
