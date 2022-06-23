@@ -3,10 +3,12 @@ import { networks, Psbt, script as bScript, payments, opcodes } from 'bitcoinjs-
 import { Transaction } from '@stacks/stacks-blockchain-api-types';
 import BigNumber from 'bignumber.js';
 import { getRedeemedHTLC, setRedeemedHTLC, RedisClient } from '../store';
-import { logger } from '../logger';
+import { logger as _logger } from '../logger';
 import { tryBroadcast, withElectrumClient } from '../wallet';
 import { bridgeContract, stacksProvider } from '../stacks';
-import { hexToBytes } from 'micro-stacks/common';
+import { bytesToHex, hexToBytes } from 'micro-stacks/common';
+
+const logger = _logger.child({ topic: 'redeemHTLC' });
 
 export async function processFinalizedInbound(tx: Transaction, client: RedisClient) {
   if (tx.tx_type !== 'contract_call') return;
@@ -16,12 +18,11 @@ export async function processFinalizedInbound(tx: Transaction, client: RedisClie
   try {
     const txidHex = tx.contract_call.function_args[0].repr.slice(2);
     const redeemed = await getRedeemedHTLC(client, txidHex);
-    logger.debug(`Processing redeem of HTLC txid ${txidHex}`);
+    logger.debug({ htlcTxid: txidHex }, `Processing redeem of HTLC txid ${txidHex}`);
     if (redeemed) {
       logger.debug(`Already redeemed ${txidHex} in ${redeemed}`);
       return;
     }
-    logger.info(`Redeeming HTLC ${txidHex}`);
     const txid = Buffer.from(txidHex, 'hex');
     const bridge = bridgeContract();
     const provider = stacksProvider();
@@ -30,7 +31,9 @@ export async function processFinalizedInbound(tx: Transaction, client: RedisClie
     if (swap?.supplier !== BigInt(operatorId)) return;
     const preimage = await provider.ro(bridge.getPreimage(txid));
     if (preimage === null) return;
+    logger.info({ preimage: bytesToHex(preimage) });
     const redeemTxid = await redeem(txidHex, preimage);
+    logger.info({ redeemTxid }, `Redeemed inbound HTLC`);
     await setRedeemedHTLC(client, txidHex, redeemTxid);
     return true;
   } catch (error) {

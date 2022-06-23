@@ -13,10 +13,10 @@ export async function processTx(tx: Transaction, client: RedisClient) {
 
 export async function processAll(client: RedisClient) {
   const lastSeenTxid = await getLastSeenTxid(client);
-  logger.debug(`Last processed TXID: ${lastSeenTxid || 'none'}`);
   const newTxs = await getContractTxUntil(lastSeenTxid);
   if (newTxs.length > 0) {
-    logger.debug(`Processing ${newTxs.length} new transactions`);
+    const txids = newTxs.map(t => t.tx_id);
+    logger.debug({ txids }, `Processing ${newTxs.length} new transactions`);
   }
   const jobs: Promise<any>[] = newTxs.map(tx => processTx(tx, client));
   jobs.concat(processPendingOutbounds(client));

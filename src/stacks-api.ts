@@ -8,6 +8,8 @@ import {
   fetchCoreApiInfo,
 } from 'micro-stacks/api';
 import ElectrumClient from 'electrum-client-sl';
+import { logger } from './logger';
+import { getTxUrl } from './utils';
 
 export async function getStacksBlock(
   hash: string
@@ -77,6 +79,11 @@ export async function confirmationsToHeight(confirmations: number) {
   return height;
 }
 
+function txLabel(tx: Transaction) {
+  if (tx.tx_type !== 'contract_call') return '';
+  return tx.contract_call.function_name;
+}
+
 export async function getContractTxUntil(
   txid: string | null,
   txs: Transaction[] = []
@@ -97,6 +104,14 @@ export async function getContractTxUntil(
       foundLast = true;
       break;
     }
+    logger.debug(
+      {
+        tx: tx.tx_id,
+        txUrl: getTxUrl(tx.tx_id),
+        method: txLabel(tx),
+      },
+      'New bridge transaction'
+    );
     txs.push(tx);
   }
   if (foundLast || results.length === 0) {

@@ -111,7 +111,7 @@ export function logConfig(config: Record<string, string | number>) {
   message.push(`Electrum host: ${electrumConfig.host}`);
   message.push(`Electrum port: ${electrumConfig.port}`);
   message.push(`Electrum protocol: ${electrumConfig.protocol}`);
-  logger.debug(message.join('\n'));
+  logger.debug({ ...config, ...electrumConfig, topic: 'start' }, message.join('\n'));
 }
 
 export function getBtcNetwork(): networks.Network {

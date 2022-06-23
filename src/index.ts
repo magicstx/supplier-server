@@ -14,7 +14,7 @@ export const api = async () => {
   const config = validateConfig();
   logConfig(config);
 
-  const server = Fastify();
+  const server = Fastify({ logger });
   server.setErrorHandler((err, req, reply) => {
     logger.error(err);
     if (err instanceof Error) {

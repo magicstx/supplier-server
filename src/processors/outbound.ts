@@ -9,9 +9,12 @@ import {
   RedisClient,
   setPendingFinalizedOutbound,
 } from '../store';
-import { logger } from '../logger';
+import { logger as _logger } from '../logger';
 import { sendBtc, withElectrumClient } from '../wallet';
 import { bridgeContract, stacksProvider } from '../stacks';
+import { getBtcTxUrl } from '../utils';
+
+const logger = _logger.child({ topic: 'sendOutbound' });
 
 export async function processOutboundSwap(tx: Transaction, redis: RedisClient) {
   if (tx.tx_type !== 'contract_call') return;
@@ -28,7 +31,10 @@ export async function processOutboundSwap(tx: Transaction, redis: RedisClient) {
   const sentTxid = await sendOutbound(swapId);
   await setSentOutbound(redis, swapId, sentTxid);
   await setPendingFinalizedOutbound(redis, swapId, sentTxid);
-  logger.debug(`Sent outbound in txid ${sentTxid}`);
+  logger.debug(
+    { swapId: Number(swapId), txid: sentTxid, txUrl: getBtcTxUrl(sentTxid) },
+    `Sent outbound in txid ${sentTxid}`
+  );
 }
 
 export function getOutboundPayment(hash: Uint8Array, versionBytes: Uint8Array) {
@@ -49,7 +55,10 @@ export async function sendOutbound(swapId: bigint) {
   const { address } = getOutboundPayment(swap.hash, swap.version);
   if (!address) throw new Error(`Unable to get outbound address for swap ${swapId}`);
   const amount = swap.sats;
-  logger.debug(`Sending ${amount} sats to ${address}`);
+  logger.debug(
+    { topic: 'sendOutbound', swapId: Number(swapId), recipient: address },
+    `Sending ${amount} sats to ${address}`
+  );
   const txid = await withElectrumClient(async client => {
     const tx = await sendBtc({
       client,

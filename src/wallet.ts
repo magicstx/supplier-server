@@ -1,5 +1,5 @@
 import ElectrumClient, { Unspent } from 'electrum-client-sl';
-import { getScriptHash } from './utils';
+import { getBtcTxUrl, getScriptHash } from './utils';
 import { getBtcPayment, getBtcNetwork, getBtcSigner, getElectrumConfig } from './config';
 import { payments, Psbt, Transaction } from 'bitcoinjs-lib';
 import { logger } from './logger';
@@ -80,8 +80,9 @@ interface SendBtc {
 }
 
 export async function sendBtc(opts: SendBtc) {
-  logger.trace({ ...opts, topic: 'sendBtc' });
-  const { coins, fee, total } = await selectCoins(opts.amount, opts.client);
+  const { client, ...logOpts } = opts;
+  logger.debug({ ...logOpts, topic: 'sendBtc' });
+  const { coins, fee, total } = await selectCoins(opts.amount, client);
   const network = getBtcNetwork();
 
   const psbt = new Psbt({ network });
@@ -114,16 +115,24 @@ export async function sendBtc(opts: SendBtc) {
   psbt.finalizeAllInputs();
 
   const final = psbt.extractTransaction();
-  await tryBroadcast(opts.client, final);
+  await tryBroadcast(client, final);
   return final;
 }
 
 export async function tryBroadcast(client: ElectrumClient, tx: Transaction) {
+  const id = tx.getId();
   try {
     await client.blockchain_transaction_broadcast(tx.toHex());
+    logger.info(
+      {
+        topic: 'btcBroadcast',
+        txid: id,
+        txUrl: getBtcTxUrl(id),
+      },
+      `Broadcasted BTC tx ${id}`
+    );
   } catch (error) {
-    const id = tx.getId();
-    logger.error(`Error broadcasting: ${id}`);
+    logger.error({ broadcastError: error, txId: id }, `Error broadcasting: ${id}`);
     if (typeof error === 'string' && !error.includes('Transaction already in block chain')) {
       if (error.includes('Transaction already in block chain')) {
         logger.debug(`Already broadcasted redeem in ${id}`);
@@ -134,7 +143,6 @@ export async function tryBroadcast(client: ElectrumClient, tx: Transaction) {
         return;
       }
     }
-    logger.error(error);
     await client.close();
     throw error;
   }

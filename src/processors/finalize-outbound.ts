@@ -1,7 +1,7 @@
 import ElectrumClient from 'electrum-client-sl';
 import { confirmationsToHeight, findStacksBlockAtHeight, getStacksBlock } from '../stacks-api';
 import { contracts } from '../clarigen/single';
-import { reverseBuffer } from '../utils';
+import { getBtcTxUrl, reverseBuffer } from '../utils';
 import { getStxAddress } from '../config';
 import { logger } from '../logger';
 import { bridgeContract, stacksProvider } from '../stacks';
@@ -74,8 +74,14 @@ export async function finalizeOutbound({
   nonce: number;
 }) {
   const [idStr, txid] = key.split('::');
-  logger.debug(`Finalizing outbound ${key}`);
   const id = BigInt(idStr);
+  const log = logger.child({
+    topic: 'finalizeOutboundSwap',
+    swapId: id,
+    btcTxid: txid,
+    btcTx: getBtcTxUrl(txid),
+  });
+  log.info(`Finalizing outbound ${key}`);
   const provider = stacksProvider();
   const bridge = bridgeContract();
   try {
@@ -92,12 +98,12 @@ export async function finalizeOutbound({
       const receipt = await provider.tx(finalizeTx, { nonce });
       return receipt.txId;
     });
-    logger.debug(`Submitted finalize outbound Stacks tx: ${stxTxid}`);
+    log.debug({ stxTxid }, `Submitted finalize outbound Stacks tx: ${stxTxid}`);
     await removePendingFinalizedOutbound(client, id, txid);
     await setFinalizedOutbound(client, id, stxTxid);
   } catch (error) {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    logger.error(`Error when finalizing outbound for ID ${idStr}: ${error}`);
+    log.error(`Error when finalizing outbound for ID ${idStr}: ${error}`);
   }
 }
 
@@ -106,8 +112,7 @@ export async function processPendingOutbounds(client: RedisClient) {
   if (members.length === 0) {
     return true;
   }
-  logger.debug('Pending finalized outbounds:');
-  logger.debug(members);
+  logger.debug({ topic: 'pendingOutbound', txids: members }, 'Pending finalized outbounds');
   const nonce = await fetchAccountNonce(getStxAddress());
   // serially to not have conflicting nonces
   let processed = 0;
