@@ -6,8 +6,8 @@
   "scripts": {
     "r": "node -r @swc-node/register -r dotenv/config",
     "dev": "NODE_ENV=development yarn r scripts/server.ts",
-    "start": "NODE_ENV=development node -r @swc-node/register scripts/server.ts",
-    "server:dev": "NODE_ENV=development yarn r scripts/server.ts",
+    "start": "node -r @swc-node/register scripts/server.ts",
+    "server:dev": "yarn r scripts/server.ts",
     "server:dev:watch": "nodemon --verbose -x 'yarn server:dev'",
     "typecheck": "tsc --noEmit",
     "generate-keys": "yarn r scripts/generate-keys.ts",
