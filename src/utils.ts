@@ -56,6 +56,10 @@ export function satsToBtc(sats: IntegerType, minDecimals?: number) {
   return rounded.length > normal.length ? rounded : normal;
 }
 
+export function btcToSats(btc: IntegerType) {
+  return new BigNumber(intToString(btc)).shiftedBy(8).decimalPlaces(0).toString();
+}
+
 export function shiftInt(int: IntegerType, shift: number) {
   return new BigNumber(intToString(int)).shiftedBy(shift);
 }

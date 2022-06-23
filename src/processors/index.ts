@@ -13,7 +13,7 @@ export async function processTx(tx: Transaction, client: RedisClient) {
 
 export async function processAll(client: RedisClient) {
   const lastSeenTxid = await getLastSeenTxid(client);
-  // logger.debug(`Last processed TXID: ${lastSeenTxid || 'none'}`);
+  logger.debug(`Last processed TXID: ${lastSeenTxid || 'none'}`);
   const newTxs = await getContractTxUntil(lastSeenTxid);
   if (newTxs.length > 0) {
     logger.debug(`Processing ${newTxs.length} new transactions`);

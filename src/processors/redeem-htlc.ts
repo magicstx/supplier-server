@@ -29,7 +29,7 @@ export async function processFinalizedInbound(tx: Transaction, client: RedisClie
     const operatorId = getOperatorId();
     if (swap?.supplier !== BigInt(operatorId)) return;
     const preimage = await provider.ro(bridge.getPreimage(txid));
-    if (!preimage) return;
+    if (preimage === null) return;
     const redeemTxid = await redeem(txidHex, preimage);
     await setRedeemedHTLC(client, txidHex, redeemTxid);
     return true;

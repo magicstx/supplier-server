@@ -1,7 +1,7 @@
 import { prompt } from 'inquirer';
 import 'cross-fetch/polyfill';
 import { stacksProvider, bridgeContract } from '../src/stacks';
-import { bpsToPercent, satsToBtc, shiftInt } from '../src/utils';
+import { bpsToPercent, btcToSats, satsToBtc, shiftInt } from '../src/utils';
 import {
   getContractAddress,
   getPublicKey,
@@ -12,6 +12,7 @@ import {
 } from '../src/config';
 import { PostConditionMode } from 'micro-stacks/transactions';
 import { fetchAccountBalances } from 'micro-stacks/api';
+import BigNumber from 'bignumber.js';
 
 interface Answers {
   inboundFee: number;
@@ -68,12 +69,8 @@ async function run() {
     },
     {
       name: 'xbtcFunds',
-      message: `How much xBTC do you want to supply (in satoshis)? Max: ${xbtcBalanceSats}`,
+      message: `How much xBTC do you want to supply (in xBTC)? Max: ${xbtcBalance}`,
       type: 'number',
-    },
-    {
-      name: 'name',
-      message: 'Your supplier name (registered publicly in the Magic contract)',
     },
   ]);
 
@@ -81,8 +78,9 @@ async function run() {
   const inboundBaseFee = BigInt(answers.inboundBaseFee);
   const outboundFee = BigInt(answers.outboundFee);
   const outboundBaseFee = BigInt(answers.outboundBaseFee);
-  const xbtcFunds = BigInt(answers.xbtcFunds);
-  const { name } = answers;
+  // const xbtcFunds = BigInt(answers.xbtcFunds);
+  const xbtcFunds = new BigNumber(answers.xbtcFunds).decimalPlaces(8);
+  const xbtcFundsSats = btcToSats(xbtcFunds.toString());
 
   console.log(`Inbound fee: ${inboundFee} bips (${bpsToPercent(inboundFee)}%)`);
   console.log(`Inbound base fee: ${inboundBaseFee} sats (${satsToBtc(inboundBaseFee)} BTC)`);
@@ -90,9 +88,7 @@ async function run() {
   console.log(`Outbound fee: ${outboundFee} bips (${bpsToPercent(outboundFee)}%)`);
   console.log(`Outbound base fee: ${outboundBaseFee} sats (${satsToBtc(outboundBaseFee)} BTC)`);
 
-  console.log(`xBTC funds: ${xbtcFunds} sats (${satsToBtc(xbtcFunds)} xBTC)`);
-
-  console.log(`Name: ${name}`);
+  console.log(`xBTC funds: ${xbtcFunds.toFormat()} xBTC (${xbtcFundsSats} sats)`);
 
   const { ok } = await prompt<{ ok: boolean }>([
     { name: 'ok', type: 'confirm', message: 'Please confirm the above information is correct' },
@@ -107,8 +103,7 @@ async function run() {
     outboundFee,
     outboundBaseFee,
     inboundBaseFee,
-    name,
-    xbtcFunds
+    BigInt(xbtcFundsSats)
   );
 
   const { txId } = await provider.tx(registerTx, { postConditionMode: PostConditionMode.Allow });

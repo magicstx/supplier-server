@@ -1,6 +1,13 @@
 import { NodeProvider } from '@clarigen/node';
-import { contracts as allContracts, accounts } from './clarigen';
+import { contractFactory } from '@clarigen/core';
+import { contracts as _contracts } from './clarigen/single';
 import { getContractAddress, getStxNetwork, getStxPrivateKey } from './config';
+
+export function getContracts() {
+  const deployer = getContractAddress();
+  const factory = contractFactory(_contracts, deployer);
+  return factory;
+}
 
 export function stacksProvider() {
   return NodeProvider({
@@ -10,5 +17,5 @@ export function stacksProvider() {
 }
 
 export function bridgeContract() {
-  return allContracts.bridge.contract(getContractAddress(), 'bridge');
+  return getContracts().bridge;
 }

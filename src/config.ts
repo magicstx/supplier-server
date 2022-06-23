@@ -2,7 +2,7 @@ import { ECPair, networks, payments } from 'bitcoinjs-lib';
 import { privateKeyToStxAddress, StacksNetworkVersion } from 'micro-stacks/crypto';
 import { StacksMainnet, StacksMocknet, StacksNetwork, StacksTestnet } from 'micro-stacks/network';
 import { getPublicKey as _getPublicKey } from 'noble-secp256k1';
-import { accounts } from '../src/clarigen';
+import { accounts } from '../src/clarigen/single';
 import { logger } from './logger';
 import { makeStxAddress } from './utils';
 

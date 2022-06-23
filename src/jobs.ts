@@ -6,5 +6,5 @@ export const processJob = (client: RedisClient) => {
   const task = new AsyncTask('process', async () => {
     await processAll(client);
   });
-  return new SimpleIntervalJob({ seconds: 30 }, task);
+  return new SimpleIntervalJob({ seconds: 30, runImmediately: true }, task);
 };
