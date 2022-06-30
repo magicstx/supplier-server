@@ -7,8 +7,8 @@ import { logger } from './logger';
 import { makeStxAddress } from './utils';
 
 export function getEnv(key: string) {
-  const supplierKey = key.replace(/^OPERATOR/, 'SUPPLIER');
-  const value = process.env[supplierKey] || process.env[key];
+  const oldKey = key.replace(/^SUPPLIER/, 'OPERATOR');
+  const value = process.env[oldKey] || process.env[key];
   if (!value) throw new Error(`Missing required ENV variable: ${key}`);
   return value;
 }
