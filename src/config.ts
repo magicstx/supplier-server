@@ -2,7 +2,7 @@ import { ECPair, networks, payments } from 'bitcoinjs-lib';
 import { privateKeyToStxAddress, StacksNetworkVersion } from 'micro-stacks/crypto';
 import { StacksMainnet, StacksMocknet, StacksNetwork, StacksTestnet } from 'micro-stacks/network';
 import { getPublicKey as _getPublicKey } from 'noble-secp256k1';
-import { accounts } from '../src/clarigen/single';
+import { simnetDeployment } from './clarigen/deployments/simnet';
 import { logger } from './logger';
 import { makeStxAddress } from './utils';
 
@@ -45,21 +45,6 @@ export function getBtcAddress() {
   const { address } = getBtcPayment();
   if (!address) throw new Error('Expected BTC address from config.');
   return address;
-}
-
-export function getContractAddress() {
-  const networkKey = getNetworkKey();
-  const defaultAddress = process.env.CONTRACT_ADDRESS;
-  switch (networkKey) {
-    case 'mocknet':
-      return accounts.deployer.address;
-    case 'mainnet':
-      throw new Error('No known contract address for mainnet');
-    case 'testnet':
-      return defaultAddress || 'ST2WBR71TSWP5S3WZYFC3VERBS3P134FB69QJXSFJ';
-    default:
-      throw new Error(`Invalid OPERATOR_NETWORK: ${networkKey}`);
-  }
 }
 
 export function getStxPrivateKey() {

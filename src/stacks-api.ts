@@ -1,6 +1,6 @@
 import 'cross-fetch/polyfill';
 import { AddressNonces, Transaction } from '@stacks/stacks-blockchain-api-types';
-import { getContractAddress, getStxNetwork } from './config';
+import { getStxNetwork } from './config';
 import {
   fetchAccountTransactions,
   fetchBlockByBurnBlockHash,
@@ -10,6 +10,7 @@ import {
 import ElectrumClient from 'electrum-client-sl';
 import { logger } from './logger';
 import { getTxUrl } from './utils';
+import { bridgeContract } from './stacks';
 
 export async function getStacksBlock(
   hash: string
@@ -88,10 +89,10 @@ export async function getContractTxUntil(
   txid: string | null,
   txs: Transaction[] = []
 ): Promise<Transaction[]> {
-  const deployer = getContractAddress();
   const network = getStxNetwork();
+  const principal = bridgeContract().identifier;
   const response = await fetchAccountTransactions({
-    principal: `${deployer}.bridge`,
+    principal,
     offset: txs.length,
     limit: 50,
     url: network.getCoreApiUrl(),

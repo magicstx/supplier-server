@@ -7,13 +7,12 @@ import {
   getElectrumConfig,
   getStxNetwork,
   getStxAddress,
-  getContractAddress,
   getOperatorId,
 } from './config';
 import { payments, Psbt, Transaction } from 'bitcoinjs-lib';
 import { logger } from './logger';
 import { fetchAccountBalances } from 'micro-stacks/api';
-import { bridgeContract, stacksProvider } from './stacks';
+import { bridgeContract, stacksProvider, xbtcAssetId } from './stacks';
 import BigNumber from 'bignumber.js';
 
 export const electrumClient = () => {
@@ -166,7 +165,7 @@ export async function tryBroadcast(client: ElectrumClient, tx: Transaction) {
 }
 
 export async function getBtcBalance() {
-  return withElectrumClient(async client => {
+  const balances = await withElectrumClient(async client => {
     const { output } = getBtcPayment();
     if (!output) throw new Error('Unable to get output for operator wallet.');
 
@@ -182,6 +181,7 @@ export async function getBtcBalance() {
       btc,
     };
   });
+  return balances;
 }
 
 export async function getStxBalance() {
@@ -191,8 +191,7 @@ export async function getStxBalance() {
     url: network.getCoreApiUrl(),
     principal: stxAddress,
   });
-  const contractAddress = getContractAddress();
-  const xbtcId = `${contractAddress}.xbtc::xbtc`;
+  const xbtcId = xbtcAssetId();
   const stxBalance = shiftInt(balances.stx.balance, -6);
   const xbtcSats = balances.fungible_tokens[xbtcId]?.balance || '0';
   return {

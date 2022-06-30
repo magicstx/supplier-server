@@ -1,6 +1,6 @@
 import ElectrumClient from 'electrum-client-sl';
 import { confirmationsToHeight, findStacksBlockAtHeight, getStacksBlock } from '../stacks-api';
-import { contracts } from '../clarigen/single';
+import { contracts } from '../clarigen';
 import { getBtcTxUrl, reverseBuffer } from '../utils';
 import { getStxAddress } from '../config';
 import { logger } from '../logger';

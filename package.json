@@ -17,13 +17,14 @@
     "lint:prettier": "prettier --check \"{src,scripts}/**/*.{ts,tsx}\"",
     "lint": "yarn eslint:ci && yarn lint:prettier",
     "flush": "yarn r scripts/flush-redis.ts",
-    "devnet": "yarn flush && yarn dev"
+    "devnet": "yarn flush && yarn dev",
+    "copy-types": "cp -f -r ../bridge/common/clarigen/ src/clarigen"
   },
   "license": "ISC",
   "prettier": "@stacks/prettier-config",
   "dependencies": {
-    "@clarigen/node": "1.0.0-next.24",
-    "@clarigen/core": "1.0.0-next.24",
+    "@clarigen/core": "1.0.0-next.27",
+    "@clarigen/node": "1.0.0-next.25",
     "@swc-node/register": "^1.3.7",
     "@swc/cli": "^0.1.51",
     "@swc/core": "^1.2.105",

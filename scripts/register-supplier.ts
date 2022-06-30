@@ -2,18 +2,10 @@ import { prompt } from 'inquirer';
 import 'cross-fetch/polyfill';
 import { stacksProvider, bridgeContract } from '../src/stacks';
 import { bpsToPercent, btcToSats, satsToBtc, shiftInt } from '../src/utils';
-import {
-  getContractAddress,
-  getPublicKey,
-  getStxAddress,
-  getStxNetwork,
-  validateConfig,
-  validateKeys,
-} from '../src/config';
+import { getBtcAddress, getPublicKey, getStxAddress, validateKeys } from '../src/config';
 import { PostConditionMode } from 'micro-stacks/transactions';
-import { fetchAccountBalances } from 'micro-stacks/api';
 import BigNumber from 'bignumber.js';
-import { getBtcBalance, getStxBalance } from '../src/wallet';
+import { getBalances } from '../src/wallet';
 
 interface Answers {
   inboundFee: number;
@@ -37,27 +29,17 @@ async function run() {
   }
 
   const stxAddress = getStxAddress();
-  const network = getStxNetwork();
-  const contractAddress = getContractAddress();
-  const balances = await fetchAccountBalances({
-    url: network.getCoreApiUrl(),
-    principal: stxAddress,
-  });
+  const btcAddress = getBtcAddress();
+  const balances = await getBalances();
 
-  const stxBalances = await getStxBalance();
-
-  const xbtcId = `${contractAddress}.xbtc::xbtc`;
-  const stxBalance = shiftInt(balances.stx.balance, -6);
-  const xbtcBalanceSats = balances.fungible_tokens[xbtcId]?.balance || '0';
-  const xbtcBalance = satsToBtc(xbtcBalanceSats);
-  const btcBalances = await getBtcBalance();
-  const btcBalance = satsToBtc(btcBalances.total);
-  // console.log(parseFloat(stxB));
-  console.log(stxBalances);
+  const stxBalance = balances.stx.stx;
+  const xbtcBalance = balances.stx.xbtc;
+  const btcBalance = balances.btc.btc;
 
   console.log(`STX Address: ${stxAddress}`);
-  console.log(`STX Balance: ${stxBalances.stx} STX`);
-  console.log(`xBTC Balance: ${stxBalances.xbtc} xBTC`);
+  console.log(`BTC Address: ${btcAddress}`);
+  console.log(`STX Balance: ${stxBalance} STX`);
+  console.log(`xBTC Balance: ${xbtcBalance} xBTC`);
   console.log(`BTC Balance: ${btcBalance} BTC`);
 
   const answers = await prompt<Answers>([
