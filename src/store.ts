@@ -3,7 +3,7 @@ import { getNetworkKey } from './config';
 export type { Redis as RedisClient } from 'ioredis';
 
 export enum RedisKeys {
-  LastSeenTxid = 'LastSeenTxidV2',
+  LastSeenTxid = 'LastSeenTxidV3',
   RedeemedHTLC = 'RedeemedHTLC',
   SentOutbound = 'SentOutbound',
   FinalizedOutbound = 'FinalizedOutbound',

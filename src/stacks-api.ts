@@ -1,16 +1,20 @@
 import 'cross-fetch/polyfill';
-import { AddressNonces, Transaction } from '@stacks/stacks-blockchain-api-types';
+import { AddressNonces, Transaction, TransactionEvent } from '@stacks/stacks-blockchain-api-types';
 import { getStxNetwork } from './config';
 import {
   fetchAccountTransactions,
   fetchBlockByBurnBlockHash,
   fetchBlockByBurnBlockHeight,
+  fetchContractEventsById,
   fetchCoreApiInfo,
 } from 'micro-stacks/api';
 import ElectrumClient from 'electrum-client-sl';
 import { logger } from './logger';
 import { getTxUrl } from './utils';
 import { bridgeContract } from './stacks';
+import { CoreNodeEventType, filterEvents, hexToCvValue, SmartContractEvent } from '@clarigen/core';
+import { Prints, Event } from './events';
+import { cvToValue } from 'micro-stacks/clarity';
 
 export async function getStacksBlock(
   hash: string
@@ -119,6 +123,58 @@ export async function getContractTxUntil(
     return txs;
   }
   return await getContractTxUntil(txid, txs);
+}
+
+type ApiEvents = Awaited<ReturnType<typeof fetchContractEventsById>>;
+
+export async function getBridgeEvents(offset = 0): Promise<ApiEvents> {
+  const network = getStxNetwork();
+  const contractId = bridgeContract().identifier;
+  const response = (await fetchContractEventsById({
+    url: network.getCoreApiUrl(),
+    contract_id: contractId,
+    unanchored: false,
+    offset,
+  })) as unknown as { results: ApiEvents };
+  return response.results;
+}
+
+export async function getContractEventsUntil(
+  txid: string | null,
+  events: Event[] = [],
+  offset = 0
+): Promise<Event[]> {
+  const results = await getBridgeEvents(offset);
+  let foundLast = false;
+  for (let i = 0; i < results.length; i++) {
+    const event = results[i];
+    if (event.tx_id === txid) {
+      foundLast = true;
+      break;
+    }
+    if (event.event_type !== 'smart_contract_log') continue;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const v = hexToCvValue(event.contract_log.value.hex);
+    if ('topic' in v) {
+      const print = v as Prints;
+      events.push({
+        print,
+        txid: event.tx_id,
+      });
+      logger.info(
+        {
+          topic: 'contractEvent',
+          txid: event.tx_id,
+          event: print,
+        },
+        `New bridge tx: ${print.topic}`
+      );
+    }
+  }
+  if (foundLast || results.length === 0) {
+    return events;
+  }
+  return getContractEventsUntil(txid, events, offset + results.length);
 }
 
 export async function fetchAccountNonce(address: string) {

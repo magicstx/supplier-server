@@ -1,4 +1,5 @@
 import { api } from '../src';
+import { logger } from '../src/logger';
 
 async function run() {
   const server = await api();
@@ -7,7 +8,7 @@ async function run() {
 
   server.listen(port, '0.0.0.0', err => {
     if (err) console.error(err);
-    console.log(`API listening on http://localhost:${port}`);
+    logger.info({ topic: 'serverStart' }, `API listening on http://localhost:${port}`);
   });
 }
 

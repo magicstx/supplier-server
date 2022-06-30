@@ -1,43 +1,43 @@
-import { getBtcAddress, getBtcSigner, getOperatorId } from '../config';
+import { getBtcAddress, getBtcSigner, getSupplierId } from '../config';
 import { networks, Psbt, script as bScript, payments, opcodes } from 'bitcoinjs-lib';
-import { Transaction } from '@stacks/stacks-blockchain-api-types';
-import BigNumber from 'bignumber.js';
 import { getRedeemedHTLC, setRedeemedHTLC, RedisClient } from '../store';
 import { logger as _logger } from '../logger';
 import { tryBroadcast, withElectrumClient } from '../wallet';
 import { bridgeContract, stacksProvider } from '../stacks';
 import { bytesToHex, hexToBytes } from 'micro-stacks/common';
 import { getBtcTxUrl, satsToBtc } from '../utils';
+import { Event, isFinalizeInboundPrint } from '../events';
 
 const logger = _logger.child({ topic: 'redeemHTLC' });
 
-export async function processFinalizedInbound(tx: Transaction, client: RedisClient) {
-  if (tx.tx_type !== 'contract_call') return;
-  if (tx.contract_call.function_name !== 'finalize-swap') return;
-  if (!tx.contract_call.function_args) return;
-  if (tx.tx_status !== 'success') return;
+export async function processFinalizedInbound(event: Event, client: RedisClient) {
+  const { print } = event;
+  if (!isFinalizeInboundPrint(print)) return;
+  const { preimage, supplier } = print;
+  if (print.supplier !== BigInt(getSupplierId())) return;
+  const txidHex = bytesToHex(print.txid);
+  const l = logger.child({
+    txid: txidHex,
+    event: {
+      preimageHex: bytesToHex(preimage),
+      ...print,
+    },
+  });
   try {
-    const txidHex = tx.contract_call.function_args[0].repr.slice(2);
     const redeemed = await getRedeemedHTLC(client, txidHex);
-    logger.debug({ htlcTxid: txidHex }, `Processing redeem of HTLC txid ${txidHex}`);
+    l.info(`Processing redeem of HTLC txid ${txidHex}`);
     if (redeemed) {
-      logger.debug(`Already redeemed ${txidHex} in ${redeemed}`);
+      l.debug(`Already redeemed ${txidHex} in ${redeemed}`);
       return;
     }
-    const txid = Buffer.from(txidHex, 'hex');
-    const bridge = bridgeContract();
-    const provider = stacksProvider();
-    const swap = await provider.ro(bridge.getInboundSwap(txid));
-    const operatorId = getOperatorId();
-    if (swap?.supplier !== BigInt(operatorId)) return;
-    const preimage = await provider.ro(bridge.getPreimage(txid));
-    if (preimage === null) return;
-    logger.info({ preimage: bytesToHex(preimage) });
+    if (preimage === null) {
+      l.error('Error redeeming: no preimage');
+      return;
+    }
     const redeemTxid = await redeem(txidHex, preimage);
     await setRedeemedHTLC(client, txidHex, redeemTxid);
-    return true;
   } catch (error) {
-    console.error('Error redeeming HTLC', error);
+    l.error({ error, errorString: String(error) }, `Error redeeming HTLC: ${String(error)}`);
   }
 }
 

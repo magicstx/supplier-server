@@ -7,7 +7,7 @@ import {
   getElectrumConfig,
   getStxNetwork,
   getStxAddress,
-  getOperatorId,
+  getSupplierId,
 } from './config';
 import { payments, Psbt, Transaction } from 'bitcoinjs-lib';
 import { logger } from './logger';
@@ -204,7 +204,7 @@ export async function getStxBalance() {
 export async function getXbtcFunds() {
   const bridge = bridgeContract();
   const provider = stacksProvider();
-  const supplierId = getOperatorId();
+  const supplierId = getSupplierId();
   const funds = await provider.ro(bridge.getFunds(supplierId));
   return {
     xbtc: shiftInt(funds, -8).toNumber(),

@@ -29,7 +29,7 @@ export function getPublicKey() {
   return signer.publicKey;
 }
 
-export function getOperatorId() {
+export function getSupplierId() {
   const id = parseInt(getEnv('SUPPLIER_ID'), 10);
   if (isNaN(id)) throw new Error('SUPPLIER_ID is not a number');
   return id;
@@ -81,7 +81,7 @@ export function validateConfig() {
   const keys = validateKeys();
   return {
     ...keys,
-    operatorId: getOperatorId(),
+    operatorId: getSupplierId(),
   };
 }
 
