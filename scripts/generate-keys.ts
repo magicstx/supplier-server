@@ -18,7 +18,7 @@ async function run() {
       default: 'testnet',
     },
   ]);
-  process.env.OPERATOR_NETWORK = answers.networkKey;
+  process.env.SUPPLIER_NETWORK = answers.networkKey;
   const stxKey = utils.randomPrivateKey();
   const stxNetwork = getStxNetworkVersion();
 
@@ -35,9 +35,9 @@ async function run() {
   console.log('');
 
   console.log('Add to your .env file:');
-  console.log(`OPERATOR_NETWORK=${answers.networkKey}`);
-  console.log(`OPERATOR_STX_KEY=${bytesToHex(stxKey)}`);
-  console.log(`OPERATOR_BTC_KEY=${btcWIF}`);
+  console.log(`SUPPLIER_NETWORK=${answers.networkKey}`);
+  console.log(`SUPPLIER_STX_KEY=${bytesToHex(stxKey)}`);
+  console.log(`SUPPLIER_BTC_KEY=${btcWIF}`);
 }
 
 run()

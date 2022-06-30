@@ -7,19 +7,20 @@ import { logger } from './logger';
 import { makeStxAddress } from './utils';
 
 export function getEnv(key: string) {
-  const value = process.env[key];
+  const supplierKey = key.replace(/^OPERATOR/, 'SUPPLIER');
+  const value = process.env[supplierKey] || process.env[key];
   if (!value) throw new Error(`Missing required ENV variable: ${key}`);
   return value;
 }
 
 export function getBtcSigner() {
   const network = getBtcNetwork();
-  return ECPair.fromWIF(getEnv('OPERATOR_BTC_KEY'), network);
+  return ECPair.fromWIF(getEnv('SUPPLIER_BTC_KEY'), network);
 }
 
 export function getBtcPrivateKey() {
   const signer = getBtcSigner();
-  if (!signer.privateKey) throw new Error('Invalid private key in OPERATOR_BTC_KEY');
+  if (!signer.privateKey) throw new Error('Invalid private key in SUPPLIER_BTC_KEY');
   return signer.privateKey;
 }
 
@@ -29,8 +30,8 @@ export function getPublicKey() {
 }
 
 export function getOperatorId() {
-  const id = parseInt(getEnv('OPERATOR_ID'), 10);
-  if (isNaN(id)) throw new Error('OPERATOR_ID is not a number');
+  const id = parseInt(getEnv('SUPPLIER_ID'), 10);
+  if (isNaN(id)) throw new Error('SUPPLIER_ID is not a number');
   return id;
 }
 
@@ -62,7 +63,7 @@ export function getContractAddress() {
 }
 
 export function getStxPrivateKey() {
-  return getEnv('OPERATOR_STX_KEY');
+  return getEnv('SUPPLIER_STX_KEY');
 }
 
 export function getStxNetworkVersion() {
@@ -79,7 +80,7 @@ export function getStxAddress() {
 }
 
 export function getNetworkKey() {
-  return getEnv('OPERATOR_NETWORK');
+  return getEnv('SUPPLIER_NETWORK');
 }
 
 export function validateKeys() {
@@ -116,7 +117,7 @@ export function getBtcNetwork(): networks.Network {
     case 'testnet':
       return networks.testnet;
     default:
-      throw new Error(`Invalid OPERATOR_NETWORK: ${networkKey}`);
+      throw new Error(`Invalid SUPPLIER_NETWORK: ${networkKey}`);
   }
 }
 
@@ -130,7 +131,7 @@ export function getStxNetwork(): StacksNetwork {
     case 'testnet':
       return new StacksTestnet();
     default:
-      throw new Error(`Invalid OPERATOR_NETWORK: ${networkKey}`);
+      throw new Error(`Invalid SUPPLIER_NETWORK: ${networkKey}`);
   }
 }
 
