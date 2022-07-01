@@ -101,9 +101,15 @@ export async function finalizeOutbound({
     log.debug({ stxTxid }, `Submitted finalize outbound Stacks tx: ${stxTxid}`);
     await removePendingFinalizedOutbound(client, id, txid);
     await setFinalizedOutbound(client, id, stxTxid);
+    return true;
   } catch (error) {
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    log.error(`Error when finalizing outbound for ID ${idStr}: ${error}`);
+    if (String(error) === 'Invalid height') {
+      log.debug(`Cannot finalize outbound ${idStr}: no stacks block.`);
+    } else {
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      log.error(`Error when finalizing outbound for ID ${idStr}: ${error}`);
+    }
+    return false;
   }
 }
 
@@ -119,12 +125,12 @@ export async function processPendingOutbounds(client: RedisClient) {
   for (let i = 0; i < members.length; i++) {
     const key = members[i];
     try {
-      await finalizeOutbound({
+      const success = await finalizeOutbound({
         client,
         nonce: nonce + processed,
         key,
       });
-      processed += 1;
+      if (success) processed += 1;
     } catch (error) {
       console.error(`Unable to finalize outbound ${key}:`, error);
     }
