@@ -164,6 +164,7 @@ export async function getContractEventsUntil(
       logger.info(
         {
           topic: 'contractEvent',
+          txUrl: getTxUrl(event.tx_id),
           txid: event.tx_id,
           event: print,
         },
