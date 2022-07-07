@@ -1,0 +1,24 @@
+services:
+  - type: redis
+    name: supplier-redis
+    ipAllowList: []
+  
+  - type: web
+    name: supplier-server
+    env: node
+    buildCommand: "yarn"
+    startCommand: "yarn start"
+    envVars:
+      - key: REDIS_URL
+        fromService:
+          name: supplier-redis
+          type: redis
+          property: connectionString
+      - key: SUPPLIER_STX_KEY
+        sync: false
+      - key: SUPPLIER_BTC_KEY
+        sync: false
+      - key: SUPPLIER_ID
+        sync: false
+      - key: SUPPLIER_NETWORK
+        value: testnet
