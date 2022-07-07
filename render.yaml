@@ -21,4 +21,5 @@ services:
       - key: SUPPLIER_ID
         sync: false
       - key: SUPPLIER_NETWORK
+        sync: false
         value: testnet
