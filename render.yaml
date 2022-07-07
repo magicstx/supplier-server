@@ -22,4 +22,3 @@ services:
         sync: false
       - key: SUPPLIER_NETWORK
         sync: false
-        value: testnet
