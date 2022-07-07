@@ -19,7 +19,7 @@ export function createRedisClient() {
   const url = process.env.REDIS_URL || process.env.REDISTOGO_URL;
   const family = process.env.REDIS_FAMILY ? parseInt(process.env.REDIS_FAMILY, 10) : 4;
   const keyPrefix = redisKeyPrefix();
-  const client = new Redis(url, { keyPrefix, family });
+  const client = new Redis(url || '', { keyPrefix });
   return client;
 }
 
@@ -103,7 +103,7 @@ export async function removeAll(client: RedisClient) {
 
 // helpers
 
-export async function getAllKeys(client: RedisClient): Promise<string[]> {
+export async function getAllKeys(client: RedisClient, withPrefix = false): Promise<string[]> {
   const keyPrefix = redisKeyPrefix();
   return new Promise(resolve => {
     const keys: string[] = [];
@@ -111,8 +111,12 @@ export async function getAllKeys(client: RedisClient): Promise<string[]> {
       count: 1000,
     });
     stream.on('data', (res: string[]) => {
-      const fixedKeys = res.map(key => key.slice(keyPrefix.length));
-      keys.push(...fixedKeys);
+      if (withPrefix) {
+        keys.push(...res);
+      } else {
+        const fixedKeys = res.map(key => key.slice(keyPrefix.length));
+        keys.push(...fixedKeys);
+      }
     });
     stream.on('end', () => {
       resolve(keys);
@@ -120,8 +124,8 @@ export async function getAllKeys(client: RedisClient): Promise<string[]> {
   });
 }
 
-export async function getAllKeysAndValues(client: RedisClient) {
-  const keys = await getAllKeys(client);
+export async function getAllKeysAndValues(client: RedisClient, withPrefix = false) {
+  const keys = await getAllKeys(client, withPrefix);
   const values = await client.mget(keys);
   const combined: [string, string | null][] = [];
   for (let i = 0; i < keys.length; i++) {

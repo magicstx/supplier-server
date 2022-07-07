@@ -1,9 +1,11 @@
 import { ECPair, networks, payments } from 'bitcoinjs-lib';
+import { bytesToHex } from 'micro-stacks/common';
 import { privateKeyToStxAddress, StacksNetworkVersion } from 'micro-stacks/crypto';
 import { StacksMainnet, StacksMocknet, StacksNetwork, StacksTestnet } from 'micro-stacks/network';
 import { getPublicKey as _getPublicKey } from 'noble-secp256k1';
 import { simnetDeployment } from './clarigen/deployments/simnet';
 import { logger } from './logger';
+import { bridgeContract, stacksProvider } from './stacks';
 import { makeStxAddress } from './utils';
 
 export function getEnv(key: string) {
@@ -147,4 +149,32 @@ export function getElectrumConfig() {
         protocol: process.env.ELECTRUM_PROTOCOL || 'ssl',
       };
   }
+}
+
+export async function validateKeysMatch() {
+  const stxAddress = getStxAddress();
+  const btcAddress = getBtcAddress();
+  let id: number;
+  try {
+    id = getSupplierId();
+  } catch (error) {
+    throw new Error('Cannot validate keys match: no supplier id');
+  }
+
+  const provider = stacksProvider();
+  const supplier = await provider.ro(bridgeContract().getSupplier(id));
+  if (supplier === null) throw new Error(`Invalid config: no supplier with id ${id}`);
+
+  if (supplier.controller !== stxAddress) {
+    throw new Error(`STX key invalid: expected ${supplier.controller} to equal ${stxAddress}`);
+  }
+
+  const supplierBtc = payments.p2pkh({
+    pubkey: Buffer.from(supplier['public-key']),
+    network: getBtcNetwork(),
+  }).address!;
+  if (supplierBtc !== btcAddress) {
+    throw new Error(`BTC key invalid: expected ${supplierBtc} to equal ${btcAddress}`);
+  }
+  return true;
 }
