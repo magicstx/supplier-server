@@ -1,6 +1,5 @@
 import Fastify from 'fastify';
 import BasicAuth, { FastifyBasicAuthOptions } from '@fastify/basic-auth';
-import { logConfig, validateConfig } from './config';
 import { logger } from './logger';
 import { bullRoute } from './routes/bull-adapter';
 
@@ -14,9 +13,6 @@ export const validate: FastifyBasicAuthOptions['validate'] = async (username, pa
 };
 
 export const api = async () => {
-  const config = validateConfig();
-  logConfig(config);
-
   const server = Fastify({ logger });
   await server.register(BasicAuth, { validate });
   server.setErrorHandler((err, req, reply) => {

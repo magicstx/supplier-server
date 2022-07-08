@@ -1,6 +1,7 @@
 services:
   - type: redis
     name: supplier-server-redis
+    plan: starter
     ipAllowList: []
   
   - type: web
