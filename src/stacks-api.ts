@@ -1,4 +1,5 @@
 import 'cross-fetch/polyfill';
+import { fetch } from 'cross-fetch';
 import { AddressNonces, Transaction, TransactionEvent } from '@stacks/stacks-blockchain-api-types';
 import { getStxNetwork } from './config';
 import {
@@ -161,7 +162,7 @@ export async function getContractEventsUntil(
         topic: 'contractEvent',
         txUrl: getTxUrl(apiEvent.tx_id),
         txid: apiEvent.tx_id,
-        event: print,
+        event: event.print,
       },
       `New bridge tx: ${event.print.topic}`
     );
