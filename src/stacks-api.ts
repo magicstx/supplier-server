@@ -7,13 +7,14 @@ import {
   fetchBlockByBurnBlockHeight,
   fetchContractEventsById,
   fetchCoreApiInfo,
+  fetchTransaction,
 } from 'micro-stacks/api';
 import ElectrumClient from 'electrum-client-sl';
 import { logger } from './logger';
 import { getTxUrl } from './utils';
 import { bridgeContract } from './stacks';
 import { CoreNodeEventType, filterEvents, hexToCvValue, SmartContractEvent } from '@clarigen/core';
-import { Prints, Event } from './events';
+import { Prints, Event, getPrintFromRawEvent } from './events';
 import { cvToValue } from 'micro-stacks/clarity';
 
 export async function getStacksBlock(
@@ -125,7 +126,8 @@ export async function getContractTxUntil(
   return await getContractTxUntil(txid, txs);
 }
 
-type ApiEvents = Awaited<ReturnType<typeof fetchContractEventsById>>;
+export type ApiEvents = Awaited<ReturnType<typeof fetchContractEventsById>>;
+export type ApiEvent = ApiEvents[0];
 
 export async function getBridgeEvents(offset = 0): Promise<ApiEvents> {
   const network = getStxNetwork();
@@ -147,30 +149,23 @@ export async function getContractEventsUntil(
   const results = await getBridgeEvents(offset);
   let foundLast = false;
   for (let i = 0; i < results.length; i++) {
-    const event = results[i];
-    if (event.tx_id === txid) {
+    const apiEvent = results[i];
+    if (apiEvent.tx_id === txid) {
       foundLast = true;
       break;
     }
-    if (event.event_type !== 'smart_contract_log') continue;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const v = hexToCvValue(event.contract_log.value.hex);
-    if ('topic' in v) {
-      const print = v as Prints;
-      events.push({
-        print,
-        txid: event.tx_id,
-      });
-      logger.info(
-        {
-          topic: 'contractEvent',
-          txUrl: getTxUrl(event.tx_id),
-          txid: event.tx_id,
-          event: print,
-        },
-        `New bridge tx: ${print.topic}`
-      );
-    }
+    const event = getPrintFromRawEvent(apiEvent);
+    if (event === null) continue;
+    logger.info(
+      {
+        topic: 'contractEvent',
+        txUrl: getTxUrl(apiEvent.tx_id),
+        txid: apiEvent.tx_id,
+        event: print,
+      },
+      `New bridge tx: ${event.print.topic}`
+    );
+    events.push(event);
   }
   if (foundLast || results.length === 0) {
     return events;
@@ -192,4 +187,20 @@ export async function getNonce(address: string) {
   const res = await fetch(url);
   const data = (await res.json()) as { nonce: number };
   return data.nonce;
+}
+
+export async function getTransactionEvent(txid: string, index: number) {
+  const network = getStxNetwork();
+  const tx = await fetchTransaction({
+    txid,
+    event_offset: index,
+    event_limit: 1,
+    url: network.getCoreApiUrl(),
+  });
+
+  if (tx.tx_status !== 'success') {
+    throw new Error('Invalid tx - not confirmed.');
+  }
+
+  return tx.events[0];
 }

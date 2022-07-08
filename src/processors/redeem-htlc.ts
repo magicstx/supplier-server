@@ -28,16 +28,23 @@ export async function processFinalizedInbound(event: Event, client: RedisClient)
     l.info(`Processing redeem of HTLC txid ${txidHex}`);
     if (redeemed) {
       l.debug(`Already redeemed ${txidHex} in ${redeemed}`);
-      return;
+      return { skipped: true };
     }
     if (preimage === null) {
       l.error('Error redeeming: no preimage');
-      return;
+      return { error: 'No preimage' };
     }
     const redeemTxid = await redeem(txidHex, preimage);
     await setRedeemedHTLC(client, txidHex, redeemTxid);
+    return {
+      redeemTxid,
+      amount: satsToBtc(print.xbtc),
+    };
   } catch (error) {
     l.error({ error, errorString: String(error) }, `Error redeeming HTLC: ${String(error)}`);
+    return {
+      error: String(error),
+    };
   }
 }
 

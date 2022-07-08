@@ -1,5 +1,6 @@
 import { contracts } from './clarigen';
-import type { TypedAbiFunction } from '@clarigen/core';
+import { hexToCvValue, TypedAbiFunction } from '@clarigen/core';
+import { ApiEvent, getTransactionEvent } from './stacks-api';
 
 type ResponseType<T> = T extends TypedAbiFunction<unknown[], infer R> ? R : never;
 
@@ -53,9 +54,10 @@ export type Prints =
   | FinalizeOutboundPrint
   | RevokeOutboundPrint;
 
-export interface Event {
+export interface Event<T = Prints> {
   txid: string;
-  print: Prints;
+  print: T;
+  index: number;
 }
 
 export const isEscrowPrint = (val: Prints): val is EscrowPrint => val.topic === 'escrow';
@@ -69,6 +71,19 @@ export const isFinalizeOutboundPrint = (val: Prints): val is FinalizeOutboundPri
   val.topic === 'finalize-outbound';
 export const isRevokeOutboundPrint = (val: Prints): val is RevokeOutboundPrint =>
   val.topic === 'revoke-outbound';
+
+export const isEscrowEvent = (val: Event): val is Event<EscrowPrint> =>
+  val.print.topic === 'escrow';
+export const isFinalizeInboundEvent = (val: Event): val is Event<FinalizeInboundPrint> =>
+  val.print.topic === 'finalize-inbound';
+export const isRevokeInboundEvent = (val: Event): val is Event<RevokeInboundPrint> =>
+  val.print.topic === 'revoke-inbound';
+export const isInitiateOutboundEvent = (val: Event): val is Event<InitiateOutboundPrint> =>
+  val.print.topic === 'initiate-outbound';
+export const isFinalizeOutboundEvent = (val: Event): val is Event<FinalizeOutboundPrint> =>
+  val.print.topic === 'finalize-outbound';
+export const isRevokeOutboundEvent = (val: Event): val is Event<RevokeOutboundPrint> =>
+  val.print.topic === 'revoke-outbound';
 
 export function getEventWithPrint<T extends Prints>(prints: Prints[], topic: T['topic']): T {
   const [found] = prints.filter(p => p.topic === topic);
@@ -95,4 +110,42 @@ export function getFinalizeOutboundPrint(prints: Prints[]) {
 }
 export function getRevokeOutboundPrint(prints: Prints[]) {
   return getEventWithPrint<RevokeOutboundPrint>(prints, 'revoke-outbound');
+}
+
+export interface SerializedEvent<T = Prints> {
+  _t?: Event<T>;
+  txid: string;
+  index: number;
+}
+
+export function serializeEvent<T>(event: Event<T>): SerializedEvent<T> {
+  return {
+    txid: event.txid,
+    index: event.index,
+  };
+}
+
+export function getPrintFromRawEvent<T = Prints>(event: ApiEvent): Event<T> | null {
+  if (event.event_type !== 'smart_contract_log') {
+    return null;
+  }
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const v = hexToCvValue(event.contract_log.value.hex);
+  if ('topic' in v) {
+    const print = v as T;
+    return {
+      txid: event.tx_id,
+      index: event.event_index,
+      print,
+    };
+  }
+  return null;
+}
+
+export async function deserializeEvent<T>(eventData: SerializedEvent<T>): Promise<Event<T>> {
+  const { index, txid } = eventData;
+  const apiEvent = await getTransactionEvent(eventData.txid, eventData.index);
+  const event = getPrintFromRawEvent<T>(apiEvent);
+  if (event === null) throw new Error('Invalid event');
+  return event;
 }

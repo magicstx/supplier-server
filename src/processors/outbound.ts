@@ -18,19 +18,28 @@ export async function processOutboundSwap(event: Event, redis: RedisClient) {
   const { print } = event;
   if (!isInitiateOutboundPrint(print)) return;
   const swapId = print['swap-id'];
+  const swapIdNum = Number(swapId);
   if (print.supplier !== BigInt(getSupplierId())) return;
   const sent = await getSentOutbound(redis, swapId);
   if (sent) {
     logger.info(`Already sent outbound swap ${swapId} in ${sent}.`);
-    return;
+    return {
+      swapId: swapIdNum,
+      skipped: true,
+    };
   }
   const sentTxid = await sendOutbound(print);
   await setSentOutbound(redis, swapId, sentTxid);
   await setPendingFinalizedOutbound(redis, swapId, sentTxid);
   logger.info(
-    { swapId: Number(swapId), txid: sentTxid, txUrl: getBtcTxUrl(sentTxid) },
+    { swapId: swapIdNum, txid: sentTxid, txUrl: getBtcTxUrl(sentTxid) },
     `Sent outbound in txid ${sentTxid}`
   );
+  return {
+    swapId: swapIdNum,
+    txUrl: getBtcTxUrl(sentTxid),
+    sentTxid,
+  };
 }
 
 export function getOutboundPayment(hash: Uint8Array, versionBytes: Uint8Array) {

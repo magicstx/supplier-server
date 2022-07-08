@@ -15,12 +15,32 @@ export function redisKeyPrefix() {
   return `swapy-${network}`;
 }
 
-export function createRedisClient() {
+export function workerKeyPrefix() {
+  const network = getNetworkKey();
+  return `supplier-worker-${network}`;
+}
+
+export function getRedisUrl() {
   const url = process.env.REDIS_URL || process.env.REDISTOGO_URL;
-  const family = process.env.REDIS_FAMILY ? parseInt(process.env.REDIS_FAMILY, 10) : 4;
+  if (typeof url === 'undefined') {
+    return 'redis://127.0.0.1:6379';
+  }
+  return url;
+}
+
+export function createRedisClient() {
+  const url = getRedisUrl();
   const keyPrefix = redisKeyPrefix();
-  const client = new Redis(url || '', { keyPrefix });
+  const client = new Redis(url, { keyPrefix });
   return client;
+}
+
+export function createWorkerRedisClient() {
+  const url = getRedisUrl();
+  return new Redis(url, {
+    maxRetriesPerRequest: null,
+    enableReadyCheck: false,
+  });
 }
 
 export async function getLastSeenTxid(client: RedisClient) {
