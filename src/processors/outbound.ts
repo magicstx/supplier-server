@@ -1,5 +1,5 @@
 import { networks, payments } from 'bitcoinjs-lib';
-import { bytesToBigInt } from 'micro-stacks/common';
+import { bytesToBigInt, bytesToHex } from 'micro-stacks/common';
 import { getBtcNetwork, getSupplierId } from '../config';
 import {
   getSentOutbound,
@@ -10,24 +10,40 @@ import {
 import { logger as _logger } from '../logger';
 import { sendBtc, withElectrumClient } from '../wallet';
 import { getBtcTxUrl } from '../utils';
-import { Event, InitiateOutboundPrint, isInitiateOutboundPrint } from '../events';
+import { Event, InitiateOutboundPrint, isInitiateOutboundEvent } from '../events';
+import { getOutboundFinalizedTxid } from '../stacks';
+import { fetchCoreInfo } from '../stacks-api';
 
 const logger = _logger.child({ topic: 'sendOutbound' });
 
-export async function processOutboundSwap(event: Event, redis: RedisClient) {
+export async function shouldSendOutbound(event: Event<InitiateOutboundPrint>, redis: RedisClient) {
   const { print } = event;
-  if (!isInitiateOutboundPrint(print)) return;
+  if (print.supplier !== BigInt(getSupplierId())) return false;
+  const swapId = print['swap-id'];
+  const cached = await getSentOutbound(redis, swapId);
+  const finalized = await getOutboundFinalizedTxid(swapId);
+  const txid = cached || finalized;
+  if (txid) {
+    logger.info(`Already sent outbound swap ${swapId} in ${txid}.`);
+    return false;
+  }
+  const currentBlock = (await fetchCoreInfo()).stacks_tip_height;
+  // is it about to expire?
+  if (currentBlock - Number(print['created-at']) >= 190) {
+    logger.error('Outbound swap expired - not sending');
+    return false;
+  }
+  return true;
+}
+
+export async function processOutboundSwap(event: Event, redis: RedisClient) {
+  if (!isInitiateOutboundEvent(event)) return false;
+  if (!(await shouldSendOutbound(event, redis))) {
+    return { skipped: true, swapId: Number(event.print['swap-id']) };
+  }
+  const { print } = event;
   const swapId = print['swap-id'];
   const swapIdNum = Number(swapId);
-  if (print.supplier !== BigInt(getSupplierId())) return;
-  const sent = await getSentOutbound(redis, swapId);
-  if (sent) {
-    logger.info(`Already sent outbound swap ${swapId} in ${sent}.`);
-    return {
-      swapId: swapIdNum,
-      skipped: true,
-    };
-  }
   const sentTxid = await sendOutbound(print);
   await setSentOutbound(redis, swapId, sentTxid);
   await setPendingFinalizedOutbound(redis, swapId, sentTxid);

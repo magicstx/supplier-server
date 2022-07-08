@@ -52,6 +52,12 @@ export async function getStacksHeight(burnHeight: number) {
   }
 }
 
+export async function fetchCoreInfo() {
+  return fetchCoreApiInfo({
+    url: getStxNetwork().getCoreApiUrl(),
+  });
+}
+
 interface StacksBlockByHeight {
   header: string;
   prevBlocks: string[];
@@ -78,9 +84,7 @@ export async function findStacksBlockAtHeight(
 }
 
 export async function confirmationsToHeight(confirmations: number) {
-  const network = getStxNetwork();
-  const url = network.getCoreApiUrl();
-  const nodeInfo = await fetchCoreApiInfo({ url });
+  const nodeInfo = await fetchCoreInfo();
   const curHeight = nodeInfo.burn_block_height;
   const height = curHeight - confirmations + 1;
   return height;
