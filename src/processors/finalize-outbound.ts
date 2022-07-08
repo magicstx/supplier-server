@@ -116,7 +116,7 @@ export async function finalizeOutbound({
 export async function processPendingOutbounds(client: RedisClient) {
   const members = await getAllPendingFinalizedOutbound(client);
   if (members.length === 0) {
-    return true;
+    return { finalized: 0 };
   }
   logger.debug({ topic: 'pendingOutbound', txids: members }, 'Pending finalized outbounds');
   const nonce = await fetchAccountNonce(getStxAddress());
@@ -135,5 +135,7 @@ export async function processPendingOutbounds(client: RedisClient) {
       console.error(`Unable to finalize outbound ${key}:`, error);
     }
   }
-  return true;
+  return {
+    finalized: processed,
+  };
 }
