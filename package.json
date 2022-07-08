@@ -1,6 +1,6 @@
 {
   "name": "magic-supplier",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -46,6 +46,8 @@
     "pino-pretty": "^7.2.0"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "^0.4.5",
+    "@changesets/cli": "^2.23.1",
     "@stacks/eslint-config": "1.0.9",
     "@stacks/prettier-config": "0.0.9",
     "@stacks/stacks-blockchain-api-types": "0.70.1",
