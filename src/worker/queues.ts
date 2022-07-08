@@ -1,6 +1,6 @@
 import Queue, { Queue as QueueType, QueueOptions } from 'bull';
 import { Event, FinalizeInboundPrint, InitiateOutboundPrint, SerializedEvent } from '../events';
-import { createRedisClient, createWorkerRedisClient, getRedisUrl } from '../store';
+import { createWorkerRedisClient } from '../store';
 import Redis from 'ioredis';
 
 export interface EventJob {
@@ -19,7 +19,6 @@ let client: Redis | undefined;
 let subscriber: Redis | undefined;
 
 const opts: QueueOptions = {
-  // redisOpts here will contain at least a property of connectionName which will identify the queue based on its name
   createClient: function (type) {
     switch (type) {
       case 'client':
@@ -35,7 +34,7 @@ const opts: QueueOptions = {
       case 'bclient':
         return createWorkerRedisClient();
       default:
-        throw new Error('Unexpected connection type: ', type);
+        throw new Error(`Unexpected connection type: ${String(type)}`);
     }
   },
 };
