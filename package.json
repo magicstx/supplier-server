@@ -1,5 +1,5 @@
 {
-  "name": "zelda-supplier",
+  "name": "magic-supplier",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -43,8 +43,7 @@
     "micro-stacks": "0.3.0",
     "noble-secp256k1": "^1.2.14",
     "pino": "^7.3.0",
-    "pino-pretty": "^7.2.0",
-    "toad-scheduler": "^1.6.0"
+    "pino-pretty": "^7.2.0"
   },
   "devDependencies": {
     "@stacks/eslint-config": "1.0.9",
