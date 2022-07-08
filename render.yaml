@@ -12,7 +12,7 @@ services:
     envVars:
       - key: REDIS_URL
         fromService:
-          name: supplier-redis
+          name: supplier-server-redis
           type: redis
           property: connectionString
       - key: WEB_UI_PASSWORD
@@ -26,7 +26,7 @@ services:
     envVars:
       - key: REDIS_URL
         fromService:
-          name: supplier-redis
+          name: supplier-server-redis
           type: redis
           property: connectionString
       - key: SUPPLIER_STX_KEY
