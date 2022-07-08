@@ -1,13 +1,27 @@
 services:
   - type: redis
-    name: supplier-redis
+    name: supplier-server-redis
     ipAllowList: []
   
   - type: web
-    name: supplier-server
+    name: supplier-server-web
     env: node
     buildCommand: "yarn"
-    startCommand: "yarn start"
+    startCommand: "yarn server"
+    envVars:
+      - key: REDIS_URL
+        fromService:
+          name: supplier-redis
+          type: redis
+          property: connectionString
+      - key: WEB_UI_PASSWORD
+        sync: false
+  
+  - type: worker
+    name: supplier-server-worker
+    env: node
+    buildCommand: "yarn"
+    startCommand: "yarn worker"
     envVars:
       - key: REDIS_URL
         fromService:
