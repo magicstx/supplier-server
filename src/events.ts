@@ -54,6 +54,8 @@ export type Prints =
   | FinalizeOutboundPrint
   | RevokeOutboundPrint;
 
+export type Topics = Prints['topic'];
+
 export interface Event<T = Prints> {
   txid: string;
   print: T;

@@ -21,6 +21,7 @@ import {
 } from './queues';
 import { getBalances } from '../wallet';
 import { EventEmitter } from 'events';
+import { eventJobHandler } from './jobs';
 
 export function deserializeJob<T>(job: { data: { event: SerializedEvent<T> } }) {
   return deserializeEvent(job.data.event);
@@ -42,14 +43,7 @@ export function initWorkerThread() {
 
   void eventQueue.process(async job => {
     const event = await deserializeJob(job);
-    if (isFinalizeInboundEvent(event)) {
-      await finalizeInboundQueue.add({ event: serializeEvent(event) });
-    } else if (isInitiateOutboundEvent(event)) {
-      await sendOutboundQueue.add({ event: serializeEvent(event) });
-    }
-    return {
-      topic: event.print.topic,
-    };
+    return await eventJobHandler(event);
   });
 
   void eventCronQueue.process(1, async () => {

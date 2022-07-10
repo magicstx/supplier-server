@@ -15,8 +15,8 @@ export interface SendOutboundJob {
   event: SerializedEvent<InitiateOutboundPrint>;
 }
 
-let client: Redis | undefined;
-let subscriber: Redis | undefined;
+export let client: Redis | undefined;
+export let subscriber: Redis | undefined;
 
 const opts: QueueOptions = {
   createClient: function (type) {
