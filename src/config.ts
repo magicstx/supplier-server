@@ -37,6 +37,10 @@ export function getSupplierId() {
   return id;
 }
 
+export function hasSupplierId() {
+  return typeof process.env.SUPPLIER_ID !== 'undefined';
+}
+
 export function getBtcPayment() {
   const pubkey = getPublicKey();
   const network = getBtcNetwork();

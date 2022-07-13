@@ -1,14 +1,29 @@
 import { NodeProvider } from '@clarigen/node';
-import { deploymentFactory, DeploymentPlan } from '@clarigen/core';
+import { deploymentFactory, DeploymentPlan, contractFactory } from '@clarigen/core';
 import { contracts as _contracts } from './clarigen';
 import { getNetworkKey, getStxNetwork, getStxPrivateKey } from './config';
 import { devnetDeployment } from './clarigen/deployments/devnet';
 import { testnetDeployment } from './clarigen/deployments/testnet';
 import { bytesToHex } from 'micro-stacks/common';
+import { mainnetDeployment } from './clarigen/deployments/mainnet';
+
+export function mainnetContracts() {
+  const base = deploymentFactory(_contracts, mainnetDeployment);
+  const wrappedBitcoin = contractFactory(_contracts.wrappedBitcoin, WRAPPED_BTC_MAINNET);
+  return {
+    ...base,
+    wrappedBitcoin,
+  };
+}
 
 export function getContracts() {
+  if (getNetworkKey() === 'mainnet') {
+    return mainnetContracts();
+  }
   return deploymentFactory(_contracts, getDeployment());
 }
+
+export const WRAPPED_BTC_MAINNET = 'SP3DX3H4FEYZJZ586MFBS25ZW3HZDMEW92260R2PR.Wrapped-Bitcoin';
 
 export function stacksProvider() {
   return NodeProvider({
@@ -38,7 +53,7 @@ export function getDeployment(): DeploymentPlan {
   } else if (networkKey === 'testnet') {
     return testnetDeployment;
   } else if (networkKey === 'mainnet') {
-    throw new Error('No deployment plan for mainnet yet.');
+    return mainnetDeployment;
   }
   throw new Error(`No deployment found for network '${networkKey}'`);
 }

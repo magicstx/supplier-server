@@ -204,11 +204,17 @@ export async function getStxBalance() {
 export async function getXbtcFunds() {
   const bridge = bridgeContract();
   const provider = stacksProvider();
-  const supplierId = getSupplierId();
-  const funds = await provider.ro(bridge.getFunds(supplierId));
-  return {
-    xbtc: shiftInt(funds, -8).toNumber(),
-  };
+  try {
+    const supplierId = getSupplierId();
+    const funds = await provider.ro(bridge.getFunds(supplierId));
+    return {
+      xbtc: shiftInt(funds, -8).toNumber(),
+    };
+  } catch (error) {
+    return {
+      xbtc: 0,
+    };
+  }
 }
 
 export async function getBalances() {
