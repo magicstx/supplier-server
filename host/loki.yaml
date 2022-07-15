@@ -29,10 +29,10 @@ ingester:
   chunk_retain_period: 30s
 
 # Only needed for global rate strategy
-# distributor:
-#  ring:
-#    kvstore:
-#      store: memberlist
+distributor:
+  ring:
+    kvstore:
+      store: inmemory
 
 schema_config:
   configs:
