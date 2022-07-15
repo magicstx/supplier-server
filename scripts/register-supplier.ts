@@ -130,6 +130,7 @@ async function run() {
     fee,
     postConditionMode: PostConditionMode.Allow,
     senderKey: getStxPrivateKey(),
+    network: getStxNetwork(),
   });
 
   // const receipt = await broadcastTransaction(tx, getStxNetwork());
