@@ -4,7 +4,7 @@ services:
     plan: starter
     ipAllowList: []
 
-  - type: web
+  - type: pserv
     name: supplier-server-web
     env: node
     buildCommand: 'yarn'
@@ -15,8 +15,13 @@ services:
           name: supplier-server-redis
           type: redis
           property: connectionString
-      - key: WEB_UI_PASSWORD
-        sync: false
+      - key: SUPPLIER_SERVICE_TYPE
+        sync: monitor
+      - key: SUPPLIER_LOKI_HOST
+        fromService:
+          name: loki
+          type: pserv
+          property: hostport
 
   - type: worker
     name: supplier-server-worker
@@ -37,12 +42,56 @@ services:
         sync: false
       - key: SUPPLIER_NETWORK
         sync: false
+      - key: SUPPLIER_SERVICE_TYPE
+        sync: worker
+      - key: SUPPLIER_LOKI_HOST
+        fromService:
+          name: loki
+          type: pserv
+          property: hostport
 
-  - type: web
+  - type: pserv
     env: docker
     name: loki
-    dockerfilePath: ./config/loki.Dockerfile
-    dockerContext: ./config
+    dockerfilePath: ./host/loki.Dockerfile
+    dockerContext: ./host
+    disk:
+      mountPath: /loki
+      sizeGB: 3
+      name: loki-data
+
+  - type: pserv
+    env: docker
+    name: grafana
+    dockerfilePath: ./host/grafana.Dockerfile
+    dockerContext: ./host
+    disk:
+      mountPath: /var/lib/grafana
+      sizeGB: 5
+      name: grafana-data
+
+  - name: caddy
+    dockerfilePath: ./host/caddy.Dockerfile
+    dockerContext: ./host
+    env: docker
+    type: web
     envVars:
-      - key: SUPPLIER_LOKI_PASSWORD
+      - key: BASIC_USERNAME
         sync: false
+      - key: BASIC_PASSWORD
+        sync: false
+      - key: LOKI_HOST
+        fromService:
+          type: pserv
+          name: loki
+          property: hostport
+      - key: GRAFANA_HOST
+        fromService:
+          type: pserv
+          name: grafana
+          property: hostport
+      - key: WORKER_HOST
+        fromService:
+          type: pserv
+          name: supplier-server-web
+          property: hostport

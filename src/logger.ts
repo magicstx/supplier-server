@@ -8,18 +8,21 @@ function getLokiTransport(): TransportTargetOptions | null {
   if (process.env.SUPPLIER_LOKI_HOST) {
     const options: LokiOptions = {
       host: process.env.SUPPLIER_LOKI_HOST,
-      batching: true,
+      batching: false,
       interval: 5,
       labels: {
         app: 'supplier-server',
         network: getNetworkKey(),
+        supplierService: process.env.SUPPLIER_SERVICE_TYPE || 'unknown',
       },
       silenceErrors: false,
-      // basicAuth: {
-      //   username: process.env.SUPPLIER_LOKI_USERNAME!,
-      //   password: process.env.SUPPLIER_LOKI_PASSWORD!,
-      // },
     };
+    if (process.env.SUPPLIER_LOKI_USERNAME) {
+      options.basicAuth = {
+        username: process.env.SUPPLIER_LOKI_USERNAME!,
+        password: process.env.SUPPLIER_LOKI_PASSWORD!,
+      };
+    }
     return {
       target: 'pino-loki',
       options,
@@ -27,11 +30,6 @@ function getLokiTransport(): TransportTargetOptions | null {
     };
   }
   return null;
-}
-interface Transport<T extends Record<string, unknown>> {
-  target: string;
-  options?: T;
-  level?: string;
 }
 
 export let logger: pino.Logger;

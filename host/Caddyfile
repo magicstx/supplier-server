@@ -1,0 +1,24 @@
+:80
+
+basicauth {
+	import /etc/caddy/password
+}
+
+handle_path /loki/* {
+	reverse_proxy {$LOKI_HOST}
+}
+
+# reverse_proxy host.docker.internal:3100
+# reverse_proxy http://example.com
+
+handle_path /worker/* {
+	reverse_proxy {$WORKER_HOST}
+}
+
+# handle_path /test/* {
+# 	reverse_proxy https://example.com
+# }
+
+reverse_proxy {$GRAFANA_HOST}
+
+# reverse_proxy host.docker.internal:3100
