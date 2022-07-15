@@ -11,7 +11,7 @@ jobs:
       - name: Set Node Version
         uses: actions/setup-node@v3
         with:
-          node-version: 16.9.1
+          node-version: 16.x
           cache: 'yarn'
       - name: Install dependencies
         run: yarn install --frozen-dependencies
