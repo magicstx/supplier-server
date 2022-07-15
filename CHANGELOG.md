@@ -1,5 +1,11 @@
 # magic-supplier
 
+## 1.1.1
+
+### Patch Changes
+
+- f999364: Added configuration for self-hosted Grafana and Loki to `render.yaml`
+
 ## 1.1.0
 
 ### Minor Changes
