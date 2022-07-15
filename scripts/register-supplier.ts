@@ -10,10 +10,14 @@ import {
   getStxPrivateKey,
   validateKeys,
 } from '../src/config';
-import { PostConditionMode } from 'micro-stacks/transactions';
+import {
+  PostConditionMode,
+  makeContractCall,
+  broadcastTransaction,
+} from 'micro-stacks/transactions';
 import BigNumber from 'bignumber.js';
 import { getBalances } from '../src/wallet';
-import { AnchorMode, makeContractCall, ContractCallOptions } from 'micro-stacks/transactions';
+import { AnchorMode } from 'micro-stacks/transactions';
 
 interface Answers {
   inboundFee: number;
@@ -87,7 +91,7 @@ async function run() {
   const xbtcFundsSats = btcToSats(xbtcFunds.toString());
 
   const stxFee = answers.stxFee;
-  const fee = stxToUstx(stxFee).toString();
+  const fee = stxToUstx(stxFee.toString()).toString();
 
   console.log(`Inbound fee: ${inboundFee} bips (${bpsToPercent(inboundFee)}%)`);
   console.log(`Inbound base fee: ${inboundBaseFee} sats (${satsToBtc(inboundBaseFee)} BTC)`);
@@ -115,11 +119,28 @@ async function run() {
     BigInt(xbtcFundsSats)
   );
 
-  const { txId } = await provider.tx(registerTx, {
-    postConditionMode: PostConditionMode.Allow,
+  const tx = await makeContractCall({
+    contractAddress: registerTx.contractAddress,
+    contractName: registerTx.contractName,
+    functionArgs: registerTx.functionArgs,
+    functionName: registerTx.function.name,
+    anchorMode: AnchorMode.Any,
+    // or, set fee manually:
+    // fee: 500
     fee,
+    postConditionMode: PostConditionMode.Allow,
+    senderKey: getStxPrivateKey(),
   });
-  console.log('TXID:', txId);
+
+  // const receipt = await broadcastTransaction(tx, getStxNetwork());
+
+  // console.log(receipt);
+
+  // const { txId } = await provider.tx(registerTx, {
+  //   postConditionMode: PostConditionMode.Allow,
+  //   fee,
+  // });
+  // console.log('TXID:', txId);
 }
 
 run()
