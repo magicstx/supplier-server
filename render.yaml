@@ -11,6 +11,16 @@ services:
     startCommand: 'yarn server'
     envVars:
       - fromGroup: nodejs
+      - key: REDIS_URL
+        fromService:
+          name: supplier-server-redis
+          type: redis
+          property: connectionString
+      - key: SUPPLIER_LOKI_HOST
+        fromService:
+          name: loki
+          type: pserv
+          property: hostport
       - key: SUPPLIER_SERVICE_TYPE
         value: monitor
 
@@ -21,6 +31,16 @@ services:
     startCommand: 'yarn worker'
     envVars:
       - fromGroup: nodejs
+      - key: REDIS_URL
+        fromService:
+          name: supplier-server-redis
+          type: redis
+          property: connectionString
+      - key: SUPPLIER_LOKI_HOST
+        fromService:
+          name: loki
+          type: pserv
+          property: hostport
       - key: SUPPLIER_STX_KEY
         sync: false
       - key: SUPPLIER_BTC_KEY
@@ -79,15 +99,5 @@ services:
 envVarGroups:
   - name: nodejs
     envVars:
-      - key: REDIS_URL
-        fromService:
-          name: supplier-server-redis
-          type: redis
-          property: connectionString
-      - key: SUPPLIER_LOKI_HOST
-        fromService:
-          name: loki
-          type: pserv
-          property: hostport
       - key: SUPPLIER_NETWORK
         sync: false
