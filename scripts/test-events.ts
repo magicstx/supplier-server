@@ -3,7 +3,6 @@ import { getBridgeEvents, getTransactionEvent } from '../src/stacks-api';
 
 async function run() {
   const events = await getBridgeEvents();
-  console.log('events.length', events.length);
 
   await Promise.all(
     events.map(async e => {
@@ -12,7 +11,6 @@ async function run() {
         throw new Error('Mismatch');
       }
       const event = getPrintFromRawEvent(f);
-      console.log(event);
     })
   );
 }

@@ -1,5 +1,6 @@
 import pino, { TransportTargetOptions } from 'pino';
 import type PinoLoki from 'pino-loki';
+import { getNetworkKey } from './config';
 
 type LokiOptions = Parameters<typeof PinoLoki>[0];
 
@@ -9,10 +10,15 @@ function getLokiTransport(): TransportTargetOptions | null {
       host: process.env.SUPPLIER_LOKI_HOST,
       batching: true,
       interval: 5,
-      basicAuth: {
-        username: process.env.SUPPLIER_LOKI_USERNAME!,
-        password: process.env.SUPPLIER_LOKI_PASSWORD!,
+      labels: {
+        app: 'supplier-server',
+        network: getNetworkKey(),
       },
+      silenceErrors: false,
+      // basicAuth: {
+      //   username: process.env.SUPPLIER_LOKI_USERNAME!,
+      //   password: process.env.SUPPLIER_LOKI_PASSWORD!,
+      // },
     };
     return {
       target: 'pino-loki',
