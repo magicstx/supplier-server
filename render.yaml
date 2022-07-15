@@ -3,12 +3,12 @@ services:
     name: supplier-server-redis
     plan: starter
     ipAllowList: []
-  
+
   - type: web
     name: supplier-server-web
     env: node
-    buildCommand: "yarn"
-    startCommand: "yarn server"
+    buildCommand: 'yarn'
+    startCommand: 'yarn server'
     envVars:
       - key: REDIS_URL
         fromService:
@@ -17,12 +17,12 @@ services:
           property: connectionString
       - key: WEB_UI_PASSWORD
         sync: false
-  
+
   - type: worker
     name: supplier-server-worker
     env: node
-    buildCommand: "yarn"
-    startCommand: "yarn worker"
+    buildCommand: 'yarn'
+    startCommand: 'yarn worker'
     envVars:
       - key: REDIS_URL
         fromService:
@@ -36,4 +36,13 @@ services:
       - key: SUPPLIER_ID
         sync: false
       - key: SUPPLIER_NETWORK
+        sync: false
+
+  - type: web
+    env: docker
+    name: loki
+    dockerfilePath: ./config/loki.Dockerfile
+    dockerContext: ./config
+    envVars:
+      - key: SUPPLIER_LOKI_PASSWORD
         sync: false

@@ -47,6 +47,7 @@
     "micro-stacks": "0.3.0",
     "noble-secp256k1": "^1.2.14",
     "pino": "^7.3.0",
+    "pino-loki": "^2.0.0",
     "pino-pretty": "^7.2.0"
   },
   "devDependencies": {
