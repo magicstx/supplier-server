@@ -65,6 +65,10 @@ export function shiftInt(int: IntegerType, shift: number) {
   return new BigNumber(intToString(int)).shiftedBy(shift);
 }
 
+export function stxToUstx(stx: IntegerType) {
+  return shiftInt(stx, -6).decimalPlaces(0);
+}
+
 // Add 0x to beginning of txid
 export function getTxId(txId: string) {
   return txId.startsWith('0x') ? txId : `0x${txId}`;

@@ -48,7 +48,8 @@
     "noble-secp256k1": "^1.2.14",
     "pino": "^7.3.0",
     "pino-loki": "^2.0.0",
-    "pino-pretty": "^7.2.0"
+    "pino-pretty": "^7.2.0",
+    "typescript": "4.5.1-rc"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.4.5",
@@ -68,7 +69,6 @@
     "jest": "^27.0.3",
     "jest-fetch-mock": "3.0.3",
     "nodemon": "^2.0.15",
-    "prettier": "2.4.1",
-    "typescript": "4.5.1-rc"
+    "prettier": "2.4.1"
   }
 }
