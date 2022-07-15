@@ -133,9 +133,9 @@ async function run() {
     network: getStxNetwork(),
   });
 
-  // const receipt = await broadcastTransaction(tx, getStxNetwork());
+  const receipt = await broadcastTransaction(tx, getStxNetwork());
 
-  // console.log(receipt);
+  console.log(receipt);
 
   // const { txId } = await provider.tx(registerTx, {
   //   postConditionMode: PostConditionMode.Allow,
