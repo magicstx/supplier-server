@@ -9,6 +9,7 @@ services:
     env: node
     buildCommand: 'yarn'
     startCommand: 'yarn server'
+    autoDeploy: false
     envVars:
       - fromGroup: nodejs
       - key: REDIS_URL
@@ -29,6 +30,7 @@ services:
     env: node
     buildCommand: 'yarn'
     startCommand: 'yarn worker'
+    autoDeploy: false
     envVars:
       - fromGroup: nodejs
       - key: REDIS_URL
@@ -53,6 +55,7 @@ services:
   - type: pserv
     env: docker
     name: loki
+    autoDeploy: false
     dockerfilePath: ./host/loki.Dockerfile
     dockerContext: ./host
     disk:
@@ -63,6 +66,7 @@ services:
   - type: pserv
     env: docker
     name: grafana
+    autoDeploy: false
     dockerfilePath: ./host/grafana.Dockerfile
     dockerContext: ./host
     disk:
@@ -74,6 +78,7 @@ services:
     dockerfilePath: ./host/caddy.Dockerfile
     dockerContext: ./host
     env: docker
+    autoDeploy: true
     type: web
     envVars:
       - key: BASIC_USERNAME
