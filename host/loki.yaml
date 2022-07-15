@@ -25,11 +25,12 @@ schema_config:
         period: 168h
 
 storage_config:
-  boltdb:
-    directory: /var/loki/index
+  boltdb_shipper:
+    active_index_directory: /loki/index
+    cache_location: /loki/boltdb-cache
 
   filesystem:
-    directory: /var/loki/chunks
+    directory: /loki/chunks
 
 limits_config:
   enforce_metric_name: false
