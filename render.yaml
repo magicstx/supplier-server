@@ -58,7 +58,6 @@ services:
     autoDeploy: false
     dockerfilePath: ./host/loki.Dockerfile
     dockerContext: ./host
-    healthCheckPath: /ready
     disk:
       mountPath: /loki
       sizeGB: 3
