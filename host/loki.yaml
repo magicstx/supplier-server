@@ -24,7 +24,7 @@ ingester:
     ring:
       replication_factor: 2
       kvstore:
-        store: memberlist
+        store: inmemory
     final_sleep: 0s
   chunk_idle_period: 1h
   wal:
