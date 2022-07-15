@@ -1,9 +1,5 @@
 auth_enabled: false
 
-basic_auth:
-  username: supplier
-  password: SUPPLIER_LOKI_PASSWORD
-
 server:
   http_listen_address: '0.0.0.0'
   http_listen_port: 3100
