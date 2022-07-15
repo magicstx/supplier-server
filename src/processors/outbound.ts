@@ -29,7 +29,7 @@ export async function shouldSendOutbound(event: Event<InitiateOutboundPrint>, re
   }
   const currentBlock = (await fetchCoreInfo()).stacks_tip_height;
   // is it about to expire?
-  if (currentBlock - Number(print['created-at']) >= 190) {
+  if (currentBlock - Number(print.createdAt) >= 190) {
     logger.error('Outbound swap expired - not sending');
     return false;
   }

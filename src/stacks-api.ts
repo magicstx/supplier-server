@@ -137,12 +137,15 @@ export type ApiEvent = ApiEvents[0];
 export async function getBridgeEvents(offset = 0): Promise<ApiEvents> {
   const network = getStxNetwork();
   const contractId = bridgeContract().identifier;
+  console.log('contractId', contractId);
+  console.log('network.getCoreApiUrl()', network.getCoreApiUrl());
   const response = (await fetchContractEventsById({
     url: network.getCoreApiUrl(),
     contract_id: contractId,
     unanchored: false,
     offset,
   })) as unknown as { results: ApiEvents };
+  console.log('response', response);
   return response.results;
 }
 

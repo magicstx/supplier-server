@@ -21,7 +21,7 @@
     "lint": "yarn eslint:ci && yarn lint:prettier",
     "flush": "yarn r scripts/flush-redis.ts",
     "devnet": "yarn flush && yarn dev",
-    "copy-types": "cp -f -r ../bridge/common/clarigen/ src/clarigen",
+    "copy-types": "cp -f ../bridge/common/clarigen/next.ts src/clarigen/next.ts",
     "test": "jest"
   },
   "license": "ISC",
@@ -29,8 +29,8 @@
   "dependencies": {
     "@bull-board/api": "^4.0.0",
     "@bull-board/fastify": "^4.0.0",
-    "@clarigen/core": "1.0.0-next.28",
-    "@clarigen/node": "1.0.0-next.25",
+    "@clarigen/core": "1.0.0-next.31",
+    "@clarigen/node": "1.0.0-next.27",
     "@fastify/basic-auth": "^4.0.0",
     "@swc-node/register": "^1.3.7",
     "@swc/cli": "^0.1.51",

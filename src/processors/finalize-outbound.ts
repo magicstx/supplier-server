@@ -1,10 +1,9 @@
 import ElectrumClient from 'electrum-client-sl';
 import { confirmationsToHeight, findStacksBlockAtHeight, getStacksBlock } from '../stacks-api';
-import { contracts } from '../clarigen';
 import { getBtcTxUrl, reverseBuffer } from '../utils';
 import { getStxAddress } from '../config';
 import { logger } from '../logger';
-import { bridgeContract, stacksProvider } from '../stacks';
+import { bridgeContract, stacksProvider, BridgeContract } from '../stacks';
 import {
   RedisClient,
   getAllPendingFinalizedOutbound,
@@ -14,11 +13,9 @@ import {
 import { withElectrumClient } from '../wallet';
 import { fetchAccountNonce } from '../stacks-api';
 import { hexToBytes } from 'micro-stacks/common';
-import { TypedAbiFunction } from '@clarigen/core';
+import { ExtractArgs } from '@clarigen/core';
 
-type Params<T> = T extends TypedAbiFunction<infer A, unknown> ? A : never;
-
-type MintParams = Params<typeof contracts['bridge']['functions']['escrowSwap']>;
+type MintParams = ExtractArgs<BridgeContract['functions']['escrowSwap']>;
 type BlockParam = MintParams[0];
 type ProofParam = MintParams[3];
 
@@ -51,8 +48,8 @@ async function txData(client: ElectrumClient, txid: string) {
 
   const proofArg: ProofParam = {
     hashes: hashes,
-    'tx-index': BigInt(merkle.pos),
-    'tree-depth': BigInt(hashes.length),
+    txIndex: BigInt(merkle.pos),
+    treeDepth: BigInt(hashes.length),
   };
 
   return {

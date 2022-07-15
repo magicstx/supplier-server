@@ -1,9 +1,7 @@
 import { ECPair, networks, payments } from 'bitcoinjs-lib';
-import { bytesToHex } from 'micro-stacks/common';
-import { privateKeyToStxAddress, StacksNetworkVersion } from 'micro-stacks/crypto';
+import { StacksNetworkVersion } from 'micro-stacks/crypto';
 import { StacksMainnet, StacksMocknet, StacksNetwork, StacksTestnet } from 'micro-stacks/network';
 import { getPublicKey as _getPublicKey } from 'noble-secp256k1';
-import { simnetDeployment } from './clarigen/deployments/simnet';
 import { logger } from './logger';
 import { bridgeContract, stacksProvider } from './stacks';
 import { makeStxAddress } from './utils';
@@ -180,7 +178,7 @@ export async function validateKeysMatch() {
   }
 
   const supplierBtc = payments.p2pkh({
-    pubkey: Buffer.from(supplier['public-key']),
+    pubkey: Buffer.from(supplier.publicKey),
     network: getBtcNetwork(),
   }).address!;
   if (supplierBtc !== btcAddress) {

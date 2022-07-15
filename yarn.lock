@@ -553,26 +553,26 @@
     human-id "^1.0.2"
     prettier "^1.19.1"
 
-"@clarigen/core@1.0.0-next.25":
-  version "1.0.0-next.25"
-  resolved "https://registry.yarnpkg.com/@clarigen/core/-/core-1.0.0-next.25.tgz#f025ef3e44cc3928e5980dc813a6d0814d9b61bc"
-  integrity sha512-+p6cmCa7yfqBpruMFE4TRAEAQXLkl3MTTOEwGAZcjgEbgAHX2k18rBEM+rDOKbIL1HBRJTVlU5PuBJAHZa1Fmw==
+"@clarigen/core@1.0.0-next.30":
+  version "1.0.0-next.30"
+  resolved "https://registry.yarnpkg.com/@clarigen/core/-/core-1.0.0-next.30.tgz#a5b0c2b23cfcab6aae29335553db4c41ce2d2665"
+  integrity sha512-FXZM9FYi5ywBA9lKTKBmIcfGghX5zeJNAb3JXw5CYLTP2ERgug0qGzMoNiFrHVkZtiHd1Dd72jGFCC3mrhZWrA==
   dependencies:
     micro-stacks "^0.5.2"
 
-"@clarigen/core@1.0.0-next.28":
-  version "1.0.0-next.28"
-  resolved "https://registry.yarnpkg.com/@clarigen/core/-/core-1.0.0-next.28.tgz#bc8a8b946740d65a01d8091ea7e2a6eccf50e282"
-  integrity sha512-S8vAxti04OTE4dtO2aI72BGpjvwwFq4Dis180rb7BHCxNx9KJIL2yygjlD2F5t7v9ddWIRnXgi7I4VF70nWLLw==
+"@clarigen/core@1.0.0-next.31":
+  version "1.0.0-next.31"
+  resolved "https://registry.yarnpkg.com/@clarigen/core/-/core-1.0.0-next.31.tgz#c4bb65da769242d614584e0980e3909ab3aa7391"
+  integrity sha512-SHLJnzzTLjbcBgrCVAUvZbkPCBLZqfaZJmTAbhfZLmPDgwdjwMBKCe9UPxmWpUmzp7U1bN5ZBfgRmg09p69Iyg==
   dependencies:
     micro-stacks "^0.5.2"
 
-"@clarigen/node@1.0.0-next.25":
-  version "1.0.0-next.25"
-  resolved "https://registry.yarnpkg.com/@clarigen/node/-/node-1.0.0-next.25.tgz#2d7b3f92c5cda8a803e6c89133155a7cce6c63a9"
-  integrity sha512-xB2BlBcYry+J2s2gnt5VgFdbVRF5FCbF1xq8vrg5Mvabo0KAAhKuoavfyudNzNsPzVfnfqZiUORXpsFQI5TuOg==
+"@clarigen/node@1.0.0-next.27":
+  version "1.0.0-next.27"
+  resolved "https://registry.yarnpkg.com/@clarigen/node/-/node-1.0.0-next.27.tgz#227c98d958153cb9fb7176e404e9b989f9631354"
+  integrity sha512-ZzmmDXiYEYjpUKOELHXYehwrDkCaiO0Ywciv1MA2ZPaM3SqBtR7tzbaEaYSys9/8oh1SaHRWB1MVXRdijSvHeA==
   dependencies:
-    "@clarigen/core" "1.0.0-next.25"
+    "@clarigen/core" "1.0.0-next.30"
     micro-stacks "^0.5.2"
 
 "@eslint/eslintrc@^0.4.3":

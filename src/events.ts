@@ -1,8 +1,10 @@
-import { contracts } from './clarigen';
-import { hexToCvValue, TypedAbiFunction } from '@clarigen/core';
+import { contracts } from './clarigen/next';
+import { hexToCvValue, TypedAbiArg, TypedAbiFunction } from '@clarigen/core';
 import { ApiEvent, getTransactionEvent } from './stacks-api';
 
-type ResponseType<T> = T extends TypedAbiFunction<unknown[], infer R> ? R : never;
+type ResponseType<T> = T extends TypedAbiFunction<TypedAbiArg<unknown, string>[], infer R>
+  ? R
+  : never;
 
 type BridgeFunctions = typeof contracts['bridge']['functions'];
 
