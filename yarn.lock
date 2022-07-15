@@ -553,26 +553,19 @@
     human-id "^1.0.2"
     prettier "^1.19.1"
 
-"@clarigen/core@1.0.0-next.30":
-  version "1.0.0-next.30"
-  resolved "https://registry.yarnpkg.com/@clarigen/core/-/core-1.0.0-next.30.tgz#a5b0c2b23cfcab6aae29335553db4c41ce2d2665"
-  integrity sha512-FXZM9FYi5ywBA9lKTKBmIcfGghX5zeJNAb3JXw5CYLTP2ERgug0qGzMoNiFrHVkZtiHd1Dd72jGFCC3mrhZWrA==
+"@clarigen/core@1.0.0-next.32":
+  version "1.0.0-next.32"
+  resolved "https://registry.yarnpkg.com/@clarigen/core/-/core-1.0.0-next.32.tgz#1ec16bb4d8e57b1cfa7223a3ef62e7f084a6e655"
+  integrity sha512-M0toxkNZHpe+thivwQzYlUoz+NyecGN9vTBOruui7djIUAH73xl7nhop8Lv6Irlwy6Mi+ATlUv+HxdxmghofOQ==
   dependencies:
     micro-stacks "^0.5.2"
 
-"@clarigen/core@1.0.0-next.31":
-  version "1.0.0-next.31"
-  resolved "https://registry.yarnpkg.com/@clarigen/core/-/core-1.0.0-next.31.tgz#c4bb65da769242d614584e0980e3909ab3aa7391"
-  integrity sha512-SHLJnzzTLjbcBgrCVAUvZbkPCBLZqfaZJmTAbhfZLmPDgwdjwMBKCe9UPxmWpUmzp7U1bN5ZBfgRmg09p69Iyg==
+"@clarigen/node@1.0.0-next.32":
+  version "1.0.0-next.32"
+  resolved "https://registry.yarnpkg.com/@clarigen/node/-/node-1.0.0-next.32.tgz#c02ec709674148dffc716733c4250564ba2bc2a6"
+  integrity sha512-qPJ8wFdsew1p8xsuQArjhmNPZ0ivuv/X3nqN/tiawW9Z0lM4J/CUupGg/uq3BuPoIC6BdE/Wkd/1nSLE2ofr7g==
   dependencies:
-    micro-stacks "^0.5.2"
-
-"@clarigen/node@1.0.0-next.27":
-  version "1.0.0-next.27"
-  resolved "https://registry.yarnpkg.com/@clarigen/node/-/node-1.0.0-next.27.tgz#227c98d958153cb9fb7176e404e9b989f9631354"
-  integrity sha512-ZzmmDXiYEYjpUKOELHXYehwrDkCaiO0Ywciv1MA2ZPaM3SqBtR7tzbaEaYSys9/8oh1SaHRWB1MVXRdijSvHeA==
-  dependencies:
-    "@clarigen/core" "1.0.0-next.30"
+    "@clarigen/core" "1.0.0-next.32"
     micro-stacks "^0.5.2"
 
 "@eslint/eslintrc@^0.4.3":
