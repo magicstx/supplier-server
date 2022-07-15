@@ -79,6 +79,7 @@ services:
     dockerContext: ./host
     env: docker
     autoDeploy: true
+    healthCheckPath: /api/health
     type: web
     envVars:
       - key: BASIC_USERNAME
