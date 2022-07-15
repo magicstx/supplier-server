@@ -6,4 +6,4 @@ ENTRYPOINT ["/usr/bin/loki"]
 
 CMD ["-config.file=/etc/loki/local-config.yaml"]
 
-EXPOSe 3100
+EXPOSE 3100
