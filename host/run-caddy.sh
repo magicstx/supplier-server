@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo "$BASIC_USERNAME $(caddy hash-password --plaintext $BASIC_PASSWORD)" > /etc/caddy/password
-cat /etc/caddy/password
+pwd=$(caddy hash-password --plaintext $BASIC_PASSWORD)
+echo "$BASIC_USERNAME $pwd" > /etc/caddy/password
 
 caddy run --config /etc/caddy/Caddyfile
