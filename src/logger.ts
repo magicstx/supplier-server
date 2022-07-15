@@ -4,10 +4,18 @@ import { getNetworkKey } from './config';
 
 type LokiOptions = Parameters<typeof PinoLoki>[0];
 
+function getLokiHost() {
+  const envVar = process.env.SUPPLIER_LOKI_HOST;
+  if (!envVar) return undefined;
+  if (envVar.startsWith('http')) return envVar;
+  return `http://${envVar}`;
+}
+
 function getLokiTransport(): TransportTargetOptions | null {
-  if (process.env.SUPPLIER_LOKI_HOST) {
+  const host = getLokiHost();
+  if (host) {
     const options: LokiOptions = {
-      host: process.env.SUPPLIER_LOKI_HOST,
+      host,
       batching: false,
       interval: 5,
       labels: {

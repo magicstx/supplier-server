@@ -10,18 +10,9 @@ services:
     buildCommand: 'yarn'
     startCommand: 'yarn server'
     envVars:
-      - key: REDIS_URL
-        fromService:
-          name: supplier-server-redis
-          type: redis
-          property: connectionString
+      - fromGroup: nodejs
       - key: SUPPLIER_SERVICE_TYPE
         value: monitor
-      - key: SUPPLIER_LOKI_HOST
-        fromService:
-          name: loki
-          type: pserv
-          property: hostport
 
   - type: worker
     name: supplier-server-worker
@@ -29,26 +20,15 @@ services:
     buildCommand: 'yarn'
     startCommand: 'yarn worker'
     envVars:
-      - key: REDIS_URL
-        fromService:
-          name: supplier-server-redis
-          type: redis
-          property: connectionString
+      - fromGroup: nodejs
       - key: SUPPLIER_STX_KEY
         sync: false
       - key: SUPPLIER_BTC_KEY
         sync: false
       - key: SUPPLIER_ID
         sync: false
-      - key: SUPPLIER_NETWORK
-        sync: false
       - key: SUPPLIER_SERVICE_TYPE
         value: worker
-      - key: SUPPLIER_LOKI_HOST
-        fromService:
-          name: loki
-          type: pserv
-          property: hostport
 
   - type: pserv
     env: docker
@@ -95,3 +75,19 @@ services:
           type: pserv
           name: supplier-server-web
           property: hostport
+
+envVarGroups:
+  - name: nodejs
+    envVars:
+      - key: REDIS_URL
+        fromService:
+          name: supplier-server-redis
+          type: redis
+          property: connectionString
+      - key: SUPPLIER_LOKI_HOST
+        fromService:
+          name: loki
+          type: pserv
+          property: hostport
+      - key: SUPPLIER_NETWORK
+        sync: false
