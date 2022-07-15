@@ -16,7 +16,7 @@ services:
           type: redis
           property: connectionString
       - key: SUPPLIER_SERVICE_TYPE
-        sync: monitor
+        value: monitor
       - key: SUPPLIER_LOKI_HOST
         fromService:
           name: loki
@@ -43,7 +43,7 @@ services:
       - key: SUPPLIER_NETWORK
         sync: false
       - key: SUPPLIER_SERVICE_TYPE
-        sync: worker
+        value: worker
       - key: SUPPLIER_LOKI_HOST
         fromService:
           name: loki
