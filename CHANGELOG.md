@@ -1,5 +1,11 @@
 # magic-supplier
 
+## 1.1.2
+
+### Patch Changes
+
+- 25d984d: Added a prompt to specify STX fee when registering supplier
+
 ## 1.1.1
 
 ### Patch Changes
