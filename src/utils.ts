@@ -32,7 +32,7 @@ export function getCompressedKey(key: string) {
       isCompressed: compressed === '01',
     };
   }
-  return { key, isCompressed: true };
+  return { key, isCompressed: false };
 }
 
 export function makeStxAddress(privateKey: string, networkVersion: StacksNetworkVersion): string {
