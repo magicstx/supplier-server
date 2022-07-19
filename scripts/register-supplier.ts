@@ -4,6 +4,7 @@ import { stacksProvider, bridgeContract } from '../src/stacks';
 import { bpsToPercent, btcToSats, satsToBtc, shiftInt, stxToUstx } from '../src/utils';
 import {
   getBtcAddress,
+  getNetworkKey,
   getPublicKey,
   getStxAddress,
   getStxNetwork,
@@ -18,6 +19,7 @@ import {
 import BigNumber from 'bignumber.js';
 import { getBalances } from '../src/wallet';
 import { AnchorMode } from 'micro-stacks/transactions';
+import { bytesToHex } from 'micro-stacks/common';
 
 interface Answers {
   inboundFee: number;
@@ -44,6 +46,8 @@ async function run() {
   const stxAddress = getStxAddress();
   const btcAddress = getBtcAddress();
   const balances = await getBalances();
+  const network = getStxNetwork();
+  const networkKey = getNetworkKey();
 
   const stxBalance = balances.stx.stx;
   const xbtcBalance = balances.stx.xbtc;
@@ -54,6 +58,8 @@ async function run() {
   console.log(`STX Balance: ${stxBalance} STX`);
   console.log(`xBTC Balance: ${xbtcBalance} xBTC`);
   console.log(`BTC Balance: ${btcBalance} BTC`);
+  console.log(`Network: ${networkKey}`);
+  console.log(`Stacks node: ${network.getCoreApiUrl()}`);
 
   const answers = await prompt<Answers>([
     { name: 'inboundFee', message: 'Inbound fee (basis points)', type: 'number', default: '10' },
@@ -130,10 +136,13 @@ async function run() {
     fee,
     postConditionMode: PostConditionMode.Allow,
     senderKey: getStxPrivateKey(),
-    network: getStxNetwork(),
+    network,
   });
 
-  const receipt = await broadcastTransaction(tx, getStxNetwork());
+  const txHex = bytesToHex(tx.serialize());
+  console.log(`Signed transaction hex: ${txHex}`);
+
+  const receipt = await broadcastTransaction(tx, network);
 
   console.log(receipt);
 

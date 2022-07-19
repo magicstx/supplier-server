@@ -14,7 +14,7 @@ export type BridgeContract = Contracts['bridge'];
 type NetworkKey = typeof DEPLOYMENT_NETWORKS[number];
 function getProjectNetworkKey(): NetworkKey {
   const key = getNetworkKey();
-  if (key === 'mocknet') return 'simnet';
+  if (key === 'mocknet') return 'devnet';
   for (const type of DEPLOYMENT_NETWORKS) {
     if (type === key) return key;
   }
