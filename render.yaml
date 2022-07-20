@@ -4,7 +4,7 @@ services:
     plan: starter
     ipAllowList: []
 
-  - type: pserv
+  - type: web
     name: supplier-server-web
     env: node
     buildCommand: 'yarn'
@@ -17,13 +17,10 @@ services:
           name: supplier-server-redis
           type: redis
           property: connectionString
-      - key: SUPPLIER_LOKI_HOST
-        fromService:
-          name: loki
-          type: pserv
-          property: hostport
       - key: SUPPLIER_SERVICE_TYPE
         value: monitor
+      - key: WEB_UI_PASSWORD
+        sync: false
 
   - type: worker
     name: supplier-server-worker
@@ -38,11 +35,6 @@ services:
           name: supplier-server-redis
           type: redis
           property: connectionString
-      - key: SUPPLIER_LOKI_HOST
-        fromService:
-          name: loki
-          type: pserv
-          property: hostport
       - key: SUPPLIER_STX_KEY
         sync: false
       - key: SUPPLIER_BTC_KEY
@@ -51,55 +43,6 @@ services:
         sync: false
       - key: SUPPLIER_SERVICE_TYPE
         value: worker
-
-  - type: pserv
-    env: docker
-    name: loki
-    autoDeploy: false
-    dockerfilePath: ./host/loki.Dockerfile
-    dockerContext: ./host
-    disk:
-      mountPath: /loki
-      sizeGB: 3
-      name: loki-data
-
-  - type: pserv
-    env: docker
-    name: grafana
-    autoDeploy: false
-    dockerfilePath: ./host/grafana.Dockerfile
-    dockerContext: ./host
-    disk:
-      mountPath: /var/lib/grafana
-      sizeGB: 5
-      name: grafana-data
-
-  - name: caddy
-    dockerfilePath: ./host/caddy.Dockerfile
-    dockerContext: ./host
-    env: docker
-    autoDeploy: true
-    type: web
-    envVars:
-      - key: BASIC_USERNAME
-        sync: false
-      - key: BASIC_PASSWORD
-        sync: false
-      - key: LOKI_HOST
-        fromService:
-          type: pserv
-          name: loki
-          property: hostport
-      - key: GRAFANA_HOST
-        fromService:
-          type: pserv
-          name: grafana
-          property: hostport
-      - key: WORKER_HOST
-        fromService:
-          type: pserv
-          name: supplier-server-web
-          property: hostport
 
 envVarGroups:
   - name: nodejs
