@@ -34,18 +34,18 @@ export type RevokeInboundPrint = InboundSwapResponse & {
 
 export type InitiateOutboundPrint = OutboundSwapResponse & {
   topic: 'initiate-outbound';
-  'swap-id': bigint;
+  swapId: bigint;
 };
 
 export type FinalizeOutboundPrint = OutboundSwapResponse & {
   topic: 'finalize-outbound';
-  'swap-id': bigint;
+  swapId: bigint;
   txid: Uint8Array;
 };
 
 export type RevokeOutboundPrint = OutboundSwapResponse & {
   topic: 'revoke-outbound';
-  'swap-id': bigint;
+  swapId: bigint;
 };
 
 export type Prints =

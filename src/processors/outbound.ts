@@ -19,7 +19,7 @@ const logger = _logger.child({ topic: 'sendOutbound' });
 export async function shouldSendOutbound(event: Event<InitiateOutboundPrint>, redis: RedisClient) {
   const { print } = event;
   if (print.supplier !== BigInt(getSupplierId())) return false;
-  const swapId = print['swap-id'];
+  const swapId = print.swapId;
   const cached = await getSentOutbound(redis, swapId);
   const finalized = await getOutboundFinalizedTxid(swapId);
   const txid = cached || finalized;
@@ -39,10 +39,10 @@ export async function shouldSendOutbound(event: Event<InitiateOutboundPrint>, re
 export async function processOutboundSwap(event: Event, redis: RedisClient) {
   if (!isInitiateOutboundEvent(event)) return false;
   if (!(await shouldSendOutbound(event, redis))) {
-    return { skipped: true, swapId: Number(event.print['swap-id']) };
+    return { skipped: true, swapId: Number(event.print.swapId) };
   }
   const { print } = event;
-  const swapId = print['swap-id'];
+  const swapId = print.swapId;
   const swapIdNum = Number(swapId);
   const sentTxid = await sendOutbound(print);
   await setSentOutbound(redis, swapId, sentTxid);
@@ -69,7 +69,7 @@ export function getOutboundPayment(hash: Uint8Array, versionBytes: Uint8Array) {
 }
 
 export async function sendOutbound(event: InitiateOutboundPrint) {
-  const swapId = event['swap-id'];
+  const swapId = event.swapId;
   const { address } = getOutboundPayment(event.hash, event.version);
   if (!address) throw new Error(`Unable to get outbound address for swap ${swapId}`);
   const amount = event.sats;

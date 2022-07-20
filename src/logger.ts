@@ -66,6 +66,7 @@ if (process.env.NODE_ENV === 'development') {
     targets: transports,
   });
   logger = pino(transport);
+  logger.level = 'trace';
   // logger = pino({
   //   level: 'trace',
   // });
