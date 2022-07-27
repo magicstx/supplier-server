@@ -16,6 +16,7 @@
     "generate-keys": "yarn r scripts/generate-keys.ts",
     "check-config": "yarn r scripts/check-config.ts",
     "register-supplier": "yarn r scripts/register-supplier.ts",
+    "send-xbtc": "yarn r scripts/send-xbtc.ts",
     "eslint:ci": "eslint 'src/**/*.ts' 'scripts/**/*.ts'",
     "lint:prettier": "prettier --check \"{src,scripts}/**/*.{ts,tsx}\"",
     "lint": "yarn eslint:ci && yarn lint:prettier",
