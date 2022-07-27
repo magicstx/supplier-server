@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import 'cross-fetch/polyfill';
 import { prompt } from 'inquirer';
 import {
