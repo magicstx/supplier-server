@@ -40,7 +40,7 @@
     "bitcoinjs-lib": "^5.2.0",
     "bull": "^4.8.4",
     "cross-fetch": "^3.1.5",
-    "dotenv": "^10.0.0",
+    "dotenv": "^16.0.1",
     "electrum-client-sl": "0.1.2",
     "fastify": "^4.2.0",
     "follow-redirects": "^1.15.1",
