@@ -72,5 +72,7 @@ declare module 'electrum-client-sl' {
     blockchain_transaction_broadcast(txHex: string): Promise<string>;
 
     blockchain_scripthash_getBalance(scriptHash: string): Promise<Balance>;
+
+    blockchainEstimatefee(blocks: number): Promise<number>;
   }
 }

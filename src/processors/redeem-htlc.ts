@@ -2,7 +2,7 @@ import { getBtcAddress, getBtcSigner, getSupplierId } from '../config';
 import { networks, Psbt, script as bScript, payments, opcodes } from 'bitcoinjs-lib';
 import { getRedeemedHTLC, setRedeemedHTLC, RedisClient } from '../store';
 import { logger as _logger } from '../logger';
-import { tryBroadcast, withElectrumClient } from '../wallet';
+import { getFeeRate, tryBroadcast, withElectrumClient } from '../wallet';
 import { bridgeContract, stacksProvider } from '../stacks';
 import { bytesToHex, hexToBytes } from 'micro-stacks/common';
 import { getBtcTxUrl, satsToBtc } from '../utils';
@@ -59,9 +59,8 @@ export async function redeem(txid: string, preimage: Uint8Array) {
     const psbt = new Psbt({ network: networks.regtest });
     const signer = getBtcSigner();
     const address = getBtcAddress();
-    // TODO: dynamic feeRate
     const weight = 312;
-    const feeRate = 1;
+    const feeRate = await getFeeRate(client);
     const fee = weight * feeRate;
 
     psbt.addInput({
