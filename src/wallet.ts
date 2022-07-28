@@ -14,6 +14,7 @@ import { logger } from './logger';
 import { fetchAccountBalances } from 'micro-stacks/api';
 import { bridgeContract, stacksProvider, xbtcAssetId } from './stacks';
 import BigNumber from 'bignumber.js';
+import { bytesToHex, hexToBytes } from 'micro-stacks/common';
 
 export const electrumClient = () => {
   const envConfig = getElectrumConfig();
@@ -92,6 +93,7 @@ interface SendBtc {
   amount: bigint;
   recipient: string;
   client: ElectrumClient;
+  maxSize?: number;
 }
 
 export async function sendBtc(opts: SendBtc) {
@@ -129,6 +131,20 @@ export async function sendBtc(opts: SendBtc) {
   psbt.finalizeAllInputs();
 
   const final = psbt.extractTransaction();
+  const hex = hexToBytes(final.toHex());
+  if (typeof opts.maxSize !== 'undefined' && hex.length > opts.maxSize) {
+    logger.error(
+      {
+        topic: 'btcTxSize',
+        maxSize: opts.maxSize,
+        txSize: hex.length,
+      },
+      `Unable to send BTC - tx of size ${hex.length} bytes is over ${opts.maxSize} bytes`
+    );
+    throw new Error(
+      `Unable to send BTC - tx of size ${hex.length} bytes is over ${opts.maxSize} bytes`
+    );
+  }
   const txid = await tryBroadcast(client, final);
   if (txid) {
     logger.debug({ ...logOpts, txid, txUrl: getBtcTxUrl(txid), topic: 'sendBtc' });
