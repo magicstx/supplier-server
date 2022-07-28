@@ -53,4 +53,5 @@ export async function getOutboundFinalizedTxid(swapId: bigint | number) {
 export async function getOutboundSwap(swapId: bigint) {
   const { ro } = stacksProvider();
   const swap = await ro(bridgeContract().getOutboundSwap(swapId));
+  return swap;
 }
