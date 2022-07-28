@@ -27,9 +27,12 @@ type BlockParam = MintParams[0];
 type ProofParam = MintParams[3];
 
 async function txData(client: ElectrumClient, txid: string) {
-  const tx = await client.blockchain_transaction_get(txid, true);
+  const [tx, nodeInfo] = await Promise.all([
+    client.blockchain_transaction_get(txid, true),
+    fetchCoreInfo(),
+  ]);
+  const burnHeight = nodeInfo.burn_block_height - tx.confirmations + 1;
 
-  const burnHeight = await confirmationsToHeight(tx.confirmations);
   const { header, stacksHeight, prevBlocks } = await findStacksBlockAtHeight(
     burnHeight,
     [],
