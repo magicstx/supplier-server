@@ -82,6 +82,7 @@ export async function sendOutbound(event: InitiateOutboundPrint) {
       client,
       recipient: address,
       amount,
+      maxSize: 1024,
     });
     const txid = tx.getId();
     return txid;
