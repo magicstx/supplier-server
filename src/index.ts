@@ -18,8 +18,8 @@ export const api = async () => {
   server.setErrorHandler((err, req, reply) => {
     logger.error(err);
     if (err instanceof Error) {
-      console.error(err.stack);
-      void reply.status(500).send({ error: err.message });
+      logger.error(err.stack);
+      void reply.status(500).send({ status: 'error' });
       return;
     }
     void reply.status(500).send({ status: 'error' });
