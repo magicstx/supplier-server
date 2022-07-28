@@ -41,11 +41,29 @@ const opts: QueueOptions = {
 
 export const eventQueue = new Queue<EventJob>('events', opts);
 
-export const finalizeInboundQueue = new Queue<FinalizeInboundJob>('finalize-inbound', opts);
+export const finalizeInboundQueue = new Queue<FinalizeInboundJob>('finalize-inbound', {
+  ...opts,
+  defaultJobOptions: {
+    attempts: 12,
+    backoff: {
+      type: 'fixed',
+      delay: 10 * 60 * 1000, // attempt every 10 minutes
+    },
+  },
+});
 
 export const sendOutboundQueue = new Queue<SendOutboundJob>('send-outbound', opts);
 
-export const finalizeOutboundQueue = new Queue('finalize-outbound', opts);
+export const finalizeOutboundQueue = new Queue('finalize-outbound', {
+  ...opts,
+  defaultJobOptions: {
+    attempts: 24,
+    backoff: {
+      type: 'fixed',
+      delay: 10 * 60 * 1000, // attempt every 10 minutes
+    },
+  },
+});
 
 export const eventCronQueue = new Queue('events-cron', opts);
 

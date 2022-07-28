@@ -1,10 +1,4 @@
-import {
-  isFinalizeInboundEvent,
-  isInitiateOutboundEvent,
-  deserializeEvent,
-  SerializedEvent,
-  serializeEvent,
-} from '../events';
+import { deserializeEvent, SerializedEvent, serializeEvent } from '../events';
 import { logger } from '../logger';
 import { getContractEventsUntil } from '../stacks-api';
 import { createRedisClient, getLastSeenTxid, getRedisUrl, setLastSeenTxid } from '../store';
