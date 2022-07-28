@@ -40,9 +40,13 @@ export async function withElectrumClient<T = void>(
   }
 }
 
-export function txWeight(inputs: number) {
-  const baseSize = 2n * 33n + 10n;
-  return BigInt(inputs + 1) * 146n + baseSize;
+// Get the vB size of a BTC transaction.
+// Calculations assume p2pkh inputs
+export function txWeight(inputs: number, outputs: number) {
+  const overhead = 10n;
+  const outputSize = 34n * BigInt(outputs);
+  const inputSize = 148n * BigInt(inputs);
+  return overhead + outputSize + inputSize;
 }
 
 export async function listUnspent(client: ElectrumClient) {
@@ -70,7 +74,7 @@ export async function selectCoins(amount: bigint, client: ElectrumClient) {
       hex: Buffer.from(txHex, 'hex'),
     });
     coinAmount += BigInt(utxo.value);
-    const size = txWeight(i + 1);
+    const size = txWeight(selected.length, 2);
     const fee = feeRate * size;
     if (coinAmount > amount + fee + 5500n) {
       filled = true;
@@ -84,7 +88,7 @@ export async function selectCoins(amount: bigint, client: ElectrumClient) {
 
   return {
     coins: selected,
-    fee: feeRate * txWeight(selected.length),
+    fee: feeRate * txWeight(selected.length, 2),
     total: coinAmount,
   };
 }

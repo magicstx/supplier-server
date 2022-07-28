@@ -22,7 +22,8 @@
     "flush": "yarn r scripts/flush-redis.ts",
     "devnet": "yarn flush && yarn dev",
     "copy-types": "cp -f ../bridge/common/clarigen/next.ts src/clarigen/next.ts",
-    "test": "jest"
+    "test": "jest",
+    "consolidate": "yarn r scripts/consolidate.ts"
   },
   "license": "ISC",
   "prettier": "@stacks/prettier-config",
