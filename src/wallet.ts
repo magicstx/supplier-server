@@ -44,17 +44,21 @@ export function txWeight(inputs: number) {
   return BigInt(inputs + 1) * 146n + baseSize;
 }
 
-export async function selectCoins(amount: bigint, client: ElectrumClient) {
+export async function listUnspent(client: ElectrumClient) {
   const { output } = getBtcPayment();
   if (!output) throw new Error('Unable to get output for operator wallet.');
 
   const scriptHash = getScriptHash(output);
   const unspents = await client.blockchain_scripthash_listunspent(scriptHash.toString('hex'));
+  return unspents;
+}
+
+export async function selectCoins(amount: bigint, client: ElectrumClient) {
+  const unspents = await listUnspent(client);
   const sorted = unspents.sort((a, b) => (a.value < b.value ? 1 : -1));
 
   let coinAmount = 0n;
-  // TODO: dynamic fee rate
-  const feeRate = 2n;
+  const feeRate = BigInt(await getFeeRate(client));
   const selected: (Unspent & { hex: Buffer })[] = [];
   let filled = false;
   for (let i = 0; i < sorted.length; i++) {
@@ -162,6 +166,18 @@ export async function tryBroadcast(client: ElectrumClient, tx: Transaction) {
     await client.close();
     throw error;
   }
+}
+
+// Get Bitcoin fee rate from Electrum's "estimatefee" method.
+// Returns sats/vB fee rate for targeting 1-block confirmation
+export async function getFeeRate(client: ElectrumClient) {
+  const feePerKb = await client.blockchainEstimatefee(1);
+  if (feePerKb === -1) {
+    logger.error('Unable to get fee rate from Electrum.');
+    return 1;
+  }
+  const perByte = feePerKb * 1024;
+  return Math.ceil(perByte);
 }
 
 export async function getBtcBalance() {
