@@ -136,7 +136,6 @@ export type ApiEvent = ApiEvents[0];
 
 export interface ApiEventResponse {
   results: ApiEvents;
-  total: number;
 }
 
 export async function getBridgeEvents(offset = 0): Promise<ApiEventResponse> {
@@ -147,22 +146,16 @@ export async function getBridgeEvents(offset = 0): Promise<ApiEventResponse> {
     contract_id: contractId,
     unanchored: false,
     offset,
-  })) as unknown as { results: ApiEvents; total: number };
+  })) as unknown as ApiEventResponse;
   return response;
 }
 
 export async function getContractEventsUntil(
   txid: string | null,
   events: Event[] = [],
-  offset = 0,
-  _total?: number
+  offset = 0
 ): Promise<Event[]> {
-  const { results, total } = await getBridgeEvents(offset);
-
-  // chain state changed - exit now, allow worker to re-query
-  if (typeof _total !== 'undefined' && total !== _total) {
-    return [];
-  }
+  const { results } = await getBridgeEvents(offset);
 
   let foundLast = false;
   for (let i = 0; i < results.length; i++) {
@@ -187,7 +180,7 @@ export async function getContractEventsUntil(
   if (foundLast || results.length === 0) {
     return events;
   }
-  return getContractEventsUntil(txid, events, offset + results.length, total);
+  return getContractEventsUntil(txid, events, offset + results.length);
 }
 
 export async function fetchAccountNonce(address: string) {

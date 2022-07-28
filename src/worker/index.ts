@@ -1,7 +1,6 @@
-import { deserializeEvent, SerializedEvent, serializeEvent } from '../events';
+import { deserializeEvent, SerializedEvent } from '../events';
 import { logger } from '../logger';
-import { getContractEventsUntil } from '../stacks-api';
-import { createRedisClient, getLastSeenTxid, getRedisUrl, setLastSeenTxid } from '../store';
+import { createRedisClient } from '../store';
 import { processPendingOutbounds } from '../processors/finalize-outbound';
 import { processFinalizedInbound } from '../processors/redeem-htlc';
 import { processOutboundSwap } from '../processors/outbound';
@@ -16,7 +15,7 @@ import {
 } from './queues';
 import { getBalances } from '../wallet';
 import { EventEmitter } from 'events';
-import { eventJobHandler } from './jobs';
+import { eventCronJob, eventJobHandler } from './jobs';
 import { Queue } from 'bull';
 
 export function deserializeJob<T>(job: { data: { event: SerializedEvent<T> } }) {
@@ -75,23 +74,8 @@ export function initWorkerThread() {
     return await eventJobHandler(event);
   });
 
-  void eventCronQueue.process(1, async () => {
-    const lastSeenTxid = await getLastSeenTxid(client);
-    const newEvents = await getContractEventsUntil(lastSeenTxid);
-    if (newEvents.length > 0) {
-      const topics = newEvents.map(e => e.print.topic);
-      logger.debug({ topic: 'processEvents', topics }, `Processing ${newEvents.length} new events`);
-    }
-    const [firstEvent] = newEvents;
-    if (firstEvent !== undefined) {
-      await setLastSeenTxid(client, firstEvent.txid);
-    }
-    const eventJobs = newEvents.map(event => ({ data: { event: serializeEvent(event) } }));
-    await eventQueue.addBulk(eventJobs);
-    return {
-      newEvents: newEvents.length,
-      lastSeenTxid,
-    };
+  void eventCronQueue.process(1, () => {
+    return eventCronJob(client);
   });
 
   void finalizeOutboundQueue.process(1, async () => {
