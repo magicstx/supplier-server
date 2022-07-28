@@ -134,7 +134,12 @@ export async function getContractTxUntil(
 export type ApiEvents = Awaited<ReturnType<typeof fetchContractEventsById>>;
 export type ApiEvent = ApiEvents[0];
 
-export async function getBridgeEvents(offset = 0): Promise<ApiEvents> {
+export interface ApiEventResponse {
+  results: ApiEvents;
+  total: number;
+}
+
+export async function getBridgeEvents(offset = 0): Promise<ApiEventResponse> {
   const network = getStxNetwork();
   const contractId = bridgeContract().identifier;
   const response = (await fetchContractEventsById({
@@ -142,16 +147,23 @@ export async function getBridgeEvents(offset = 0): Promise<ApiEvents> {
     contract_id: contractId,
     unanchored: false,
     offset,
-  })) as unknown as { results: ApiEvents };
-  return response.results;
+  })) as unknown as { results: ApiEvents; total: number };
+  return response;
 }
 
 export async function getContractEventsUntil(
   txid: string | null,
   events: Event[] = [],
-  offset = 0
+  offset = 0,
+  _total?: number
 ): Promise<Event[]> {
-  const results = await getBridgeEvents(offset);
+  const { results, total } = await getBridgeEvents(offset);
+
+  // chain state changed - exit now, allow worker to re-query
+  if (typeof _total !== 'undefined' && total !== _total) {
+    return [];
+  }
+
   let foundLast = false;
   for (let i = 0; i < results.length; i++) {
     const apiEvent = results[i];
@@ -175,7 +187,7 @@ export async function getContractEventsUntil(
   if (foundLast || results.length === 0) {
     return events;
   }
-  return getContractEventsUntil(txid, events, offset + results.length);
+  return getContractEventsUntil(txid, events, offset + results.length, total);
 }
 
 export async function fetchAccountNonce(address: string) {

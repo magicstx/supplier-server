@@ -2,7 +2,7 @@ import { getPrintFromRawEvent } from '../src/events';
 import { getBridgeEvents, getTransactionEvent } from '../src/stacks-api';
 
 async function run() {
-  const events = await getBridgeEvents();
+  const events = (await getBridgeEvents()).results;
 
   await Promise.all(
     events.map(async e => {
