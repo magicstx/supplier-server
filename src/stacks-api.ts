@@ -194,13 +194,25 @@ export async function getNonce(address: string) {
   return data.nonce;
 }
 
-export async function getTransactionEvent(txid: string, index: number) {
+export interface EventListParams {
+  event_offset?: number;
+  event_limit?: number;
+}
+
+export async function getTransaction(txid: string, eventParams: EventListParams = {}) {
   const network = getStxNetwork();
   const tx = await fetchTransaction({
     txid,
+    url: network.getCoreApiUrl(),
+    ...eventParams,
+  });
+  return tx;
+}
+
+export async function getTransactionEvent(txid: string, index: number) {
+  const tx = await getTransaction(txid, {
     event_offset: index,
     event_limit: 1,
-    url: network.getCoreApiUrl(),
   });
 
   if (tx.tx_status !== 'success') {
