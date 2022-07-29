@@ -8,18 +8,14 @@ import {
   getPublicKey,
   getStxAddress,
   getStxNetwork,
-  getStxPrivateKey,
   validateKeys,
 } from '../src/config';
-import {
-  PostConditionMode,
-  makeContractCall,
-  broadcastTransaction,
-} from 'micro-stacks/transactions';
+import { PostConditionMode } from 'micro-stacks/transactions';
 import BigNumber from 'bignumber.js';
 import { getBalances } from '../src/wallet';
 import { AnchorMode } from 'micro-stacks/transactions';
 import { bytesToHex } from 'micro-stacks/common';
+import { askStxFee, broadcastAndLog } from './helpers';
 
 interface Answers {
   inboundFee: number;
@@ -81,12 +77,9 @@ async function run() {
       message: `How much xBTC do you want to supply (in xBTC)? Max: ${xbtcBalance}`,
       type: 'number',
     },
-    {
-      name: 'stxFee',
-      message: `How many STX to spend on the network fee for this transaction (in STX)? Max: ${stxBalance} STX`,
-      type: 'number',
-    },
   ]);
+
+  const { stxFee, ustxFee: fee } = await askStxFee(stxBalance);
 
   const inboundFee = BigInt(answers.inboundFee);
   const inboundBaseFee = BigInt(answers.inboundBaseFee);
@@ -95,9 +88,6 @@ async function run() {
   // const xbtcFunds = BigInt(answers.xbtcFunds);
   const xbtcFunds = new BigNumber(answers.xbtcFunds).decimalPlaces(8);
   const xbtcFundsSats = btcToSats(xbtcFunds.toString());
-
-  const stxFee = answers.stxFee;
-  const fee = stxToUstx(stxFee.toString()).toString();
 
   console.log(`Inbound fee: ${inboundFee} bips (${bpsToPercent(inboundFee)}%)`);
   console.log(`Inbound base fee: ${inboundBaseFee} sats (${satsToBtc(inboundBaseFee)} BTC)`);
@@ -125,32 +115,10 @@ async function run() {
     BigInt(xbtcFundsSats)
   );
 
-  const tx = await makeContractCall({
-    contractAddress: registerTx.contractAddress,
-    contractName: registerTx.contractName,
-    functionArgs: registerTx.functionArgs,
-    functionName: registerTx.function.name,
-    anchorMode: AnchorMode.Any,
-    // or, set fee manually:
-    // fee: 500
-    fee,
+  await broadcastAndLog(registerTx, {
     postConditionMode: PostConditionMode.Allow,
-    senderKey: getStxPrivateKey(),
-    network,
+    fee,
   });
-
-  const txHex = bytesToHex(tx.serialize());
-  console.log(`Signed transaction hex: ${txHex}`);
-
-  const receipt = await broadcastTransaction(tx, network);
-
-  console.log(receipt);
-
-  // const { txId } = await provider.tx(registerTx, {
-  //   postConditionMode: PostConditionMode.Allow,
-  //   fee,
-  // });
-  // console.log('TXID:', txId);
 }
 
 run()

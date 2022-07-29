@@ -3,6 +3,7 @@ import { projectFactory, DEPLOYMENT_NETWORKS } from '@clarigen/core';
 import { getNetworkKey, getStxNetwork, getStxPrivateKey } from './config';
 import { bytesToHex } from 'micro-stacks/common';
 import { project } from './clarigen/next';
+import { createAssetInfo } from 'micro-stacks/transactions';
 
 export function getContracts() {
   return projectFactory(project, getProjectNetworkKey());
@@ -42,6 +43,13 @@ export function xbtcAssetId() {
   const contract = xbtcContract();
   const asset = contract.fungible_tokens[0].name;
   return `${contract.identifier}::${asset}`;
+}
+
+export function xbtcAssetInfo() {
+  const contract = getContracts().wrappedBitcoin;
+  const token = contract.fungible_tokens[0].name;
+  const [address, name] = contract.identifier.split('.');
+  return createAssetInfo(address, name, token);
 }
 
 export async function getOutboundFinalizedTxid(swapId: bigint | number) {
