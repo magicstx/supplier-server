@@ -17,6 +17,7 @@ import { getBalances } from '../wallet';
 import { EventEmitter } from 'events';
 import { eventCronJob, eventJobHandler } from './jobs';
 import { Queue } from 'bull';
+import { validateConfig, validateKeysMatch } from '../config';
 
 export function deserializeJob<T>(job: { data: { event: SerializedEvent<T> } }) {
   return deserializeEvent(job.data.event);
@@ -53,6 +54,11 @@ function wrapErrorLogger(queue: Queue) {
 
 export function initWorkerThread() {
   EventEmitter.defaultMaxListeners = 30;
+
+  Promise.all([validateConfig(), validateKeysMatch()]).catch(() => {
+    logger.error('Config validation failed. Exiting.');
+    process.exit(1);
+  });
 
   allQueues.forEach(q => {
     wrapErrorLogger(q);
