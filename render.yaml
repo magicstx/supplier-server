@@ -43,6 +43,8 @@ services:
         sync: false
       - key: SUPPLIER_SERVICE_TYPE
         value: worker
+      - key: SUPPLIER_NETWORK
+        sync: false
 
 envVarGroups:
   - name: nodejs
