@@ -1,15 +1,15 @@
 import ElectrumClient from 'electrum-client-sl';
-import {
-  confirmationsToHeight,
-  fetchCoreInfo,
-  findStacksBlockAtHeight,
-  getStacksBlock,
-  getTransaction,
-} from '../stacks-api';
+import { fetchCoreInfo, findStacksBlockAtHeight, getTransaction } from '../stacks-api';
 import { getBtcTxUrl, reverseBuffer } from '../utils';
 import { getStxAddress } from '../config';
 import { logger } from '../logger';
-import { bridgeContract, stacksProvider, BridgeContract, getOutboundSwap } from '../stacks';
+import {
+  bridgeContract,
+  stacksProvider,
+  BridgeContract,
+  getOutboundSwap,
+  getOutboundFinalizedTxid,
+} from '../stacks';
 import {
   RedisClient,
   getAllPendingFinalizedOutbound,
@@ -38,11 +38,6 @@ async function txData(client: ElectrumClient, txid: string) {
     [],
     client
   );
-
-  const blockHash = tx.blockhash;
-
-  // const { burnHeight, stacksHeight } = await getStacksBlock(blockHash);
-  // const header = await client.blockchain_block_header(burnHeight);
 
   const merkle = await client.blockchain_transaction_getMerkle(txid, burnHeight);
   const hashes = merkle.merkle.map(hash => {
@@ -94,17 +89,8 @@ export async function checkShouldFinalize(
   if (stxTxid === null) {
     return true;
   }
-  const stxTx = await getTransaction(stxTxid);
-  const { tx_status } = stxTx;
-  switch (tx_status) {
-    case 'pending': {
-      return false;
-    }
-    case 'success': {
-      await removePendingFinalizedOutbound(client, swapId, txid);
-      return false;
-    }
-  }
+  const swap = await getOutboundSwap(swapId);
+
   const log = logger.child({
     topic: 'finalizeOutboundError',
     swapId,
@@ -112,24 +98,44 @@ export async function checkShouldFinalize(
     txid,
   });
 
-  // Failed - should we try again? (yes until expiry)
-  const swap = await getOutboundSwap(swapId);
   if (swap === null) {
     await removePendingFinalizedOutbound(client, swapId, txid);
     log.fatal('Trying to finalize non-existant swap');
     return false;
   }
 
-  const currentBlock = (await fetchCoreInfo()).burn_block_height;
-  if (BigInt(currentBlock) > swap.createdAt + 200n) {
-    log.error("Couldn't ever finalize swap - now expired.");
+  const stxTx = await getTransaction(stxTxid);
+  const { tx_status } = stxTx;
+  switch (tx_status) {
+    case 'pending': {
+      return false;
+    }
+    case 'success': {
+      log.info({ finalizeOutboundState: 'success' });
+      await removePendingFinalizedOutbound(client, swapId, txid);
+      return false;
+    }
+  }
+
+  // Failed - should we try again? (yes until revoked)
+
+  const finalizeTxid = await getOutboundFinalizedTxid(swapId);
+  if (finalizeTxid !== null) {
+    // This swap was already finalized (either successfully or as a revocation)
     await removePendingFinalizedOutbound(client, swapId, txid);
+    if (finalizeTxid === '00') {
+      // revoked
+      log.error({ finalizeOutboundState: 'revoked' }, 'Outbound swap was revoked');
+    } else {
+      log.info({ finalizeOutboundState: 'success' }, 'Swap already finalized');
+    }
     return false;
   }
 
   log.error(
     {
       tx_status,
+      finalizeOutboundState: 'failed',
     },
     'Outbound finalize transaction failed'
   );
