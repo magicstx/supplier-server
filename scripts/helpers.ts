@@ -1,3 +1,4 @@
+import 'cross-fetch/polyfill';
 import { ContractCallTyped, TypedAbiArg } from '@clarigen/core';
 import BigNumber from 'bignumber.js';
 import { prompt } from 'inquirer';
