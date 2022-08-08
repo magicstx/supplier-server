@@ -1939,6 +1939,11 @@ export const contracts = {
         type: 'uint128',
         access: 'constant',
       } as TypedAbiVariable<bigint>,
+      MAX_HTLC_EXPIRATION: {
+        name: 'MAX_HTLC_EXPIRATION',
+        type: 'uint128',
+        access: 'constant',
+      } as TypedAbiVariable<bigint>,
       MIN_EXPIRATION: {
         name: 'MIN_EXPIRATION',
         type: 'uint128',
@@ -3963,31 +3968,31 @@ export const deployments = {
   restrictedTokenTrait: {
     devnet: 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.restricted-token-trait',
     simnet: 'SP3DX3H4FEYZJZ586MFBS25ZW3HZDMEW92260R2PR.restricted-token-trait',
-    testnet: 'ST2ZTY9KK9H0FA0NVN3K8BGVN6R7GYVFG6BE7TAR1.restricted-token-trait',
+    testnet: 'ST19F1KWRKRF2BZMPW7MWV463K11WED2M39X1HR3A.restricted-token-trait',
     mainnet: null,
   },
   wrappedBitcoin: {
     devnet: 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.Wrapped-Bitcoin',
     simnet: 'SP3DX3H4FEYZJZ586MFBS25ZW3HZDMEW92260R2PR.Wrapped-Bitcoin',
-    testnet: 'ST2ZTY9KK9H0FA0NVN3K8BGVN6R7GYVFG6BE7TAR1.Wrapped-Bitcoin',
+    testnet: 'ST19F1KWRKRF2BZMPW7MWV463K11WED2M39X1HR3A.Wrapped-Bitcoin',
     mainnet: 'SP3DX3H4FEYZJZ586MFBS25ZW3HZDMEW92260R2PR.Wrapped-Bitcoin',
   },
   ftTrait: {
     devnet: 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.ft-trait',
     simnet: 'SP3DX3H4FEYZJZ586MFBS25ZW3HZDMEW92260R2PR.ft-trait',
-    testnet: 'ST2ZTY9KK9H0FA0NVN3K8BGVN6R7GYVFG6BE7TAR1.ft-trait',
+    testnet: 'ST19F1KWRKRF2BZMPW7MWV463K11WED2M39X1HR3A.ft-trait',
     mainnet: null,
   },
   bridge: {
     devnet: 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.bridge',
     simnet: 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.bridge',
-    testnet: 'ST2ZTY9KK9H0FA0NVN3K8BGVN6R7GYVFG6BE7TAR1.bridge',
+    testnet: 'ST19F1KWRKRF2BZMPW7MWV463K11WED2M39X1HR3A.bridge',
     mainnet: 'SP3NHG9CBN9SPH68HD8HGPS7F7499KCAEC9K20NZZ.bridge',
   },
   clarityBitcoin: {
     devnet: 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.clarity-bitcoin',
     simnet: 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.clarity-bitcoin',
-    testnet: 'ST2ZTY9KK9H0FA0NVN3K8BGVN6R7GYVFG6BE7TAR1.clarity-bitcoin',
+    testnet: 'ST19F1KWRKRF2BZMPW7MWV463K11WED2M39X1HR3A.clarity-bitcoin',
     mainnet: 'SP3NHG9CBN9SPH68HD8HGPS7F7499KCAEC9K20NZZ.clarity-bitcoin',
   },
   supplierWrapper: {
