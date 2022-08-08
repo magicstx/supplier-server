@@ -1,5 +1,21 @@
 # magic-supplier
 
+## 1.2.0
+
+### Minor Changes
+
+- bf5689c: Updates deployed testnet address
+
+### Patch Changes
+
+- f81cc9d: Adds a `consolidate` script, which can be run manually to consolidate UTXOs in the supplier's BTC wallet.
+- 0a40064: Adds dynamic fee rates for BTC transactions, using Electrum to estimate the appropriate fee rate.
+- 32a47d0: Added robust error handling in the case where an outbound finalization transaction fails.
+- bb75fb6: Adds an `stx-transfer` script
+- 18b2dc6: Added more explicit retry logic for finalizing inbound and outbound transactions.
+- 8f3a252: Changed the logic for fetching recent bridge events to safely exit if it detects a chain-state change while fetching events. This prevents any race conditions from preventing the supplier from properly handling events.
+- bb6047b: Added a 'maxSize' option to sending BTC. When sending BTC for an outbound swap, a max size of 1024 bytes is used to prevent sending BTC that isn't able to be confirmed by Clarity.
+
 ## 1.1.2
 
 ### Patch Changes
