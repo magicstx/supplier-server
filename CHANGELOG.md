@@ -1,5 +1,11 @@
 # magic-supplier
 
+## 1.2.1
+
+### Patch Changes
+
+- 6583be1: Updates mainnet contract address
+
 ## 1.2.0
 
 ### Minor Changes
