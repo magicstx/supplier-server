@@ -35,6 +35,8 @@ async function run() {
     logger.debug({
       btc: balances.btc.btc,
       stx: balances.stx.stx,
+      xbtcFunds: balances.xbtc.xbtc,
+      xbtcExternal: balances.stx.xbtc,
     });
   } catch (error) {
     logger.error(error);
