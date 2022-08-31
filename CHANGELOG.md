@@ -1,5 +1,12 @@
 # magic-supplier
 
+## 1.2.3
+
+### Patch Changes
+
+- 929337c: Fixes fee estimation math
+- 929337c: Throw full error when unable to redeem inbound
+
 ## 1.2.2
 
 ### Patch Changes
