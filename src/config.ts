@@ -146,9 +146,9 @@ export function getElectrumConfig() {
       };
     case 'mainnet':
       return {
-        host: 'fortress.qtornado.com',
-        port: 443,
-        protocol: 'ssl',
+        host: defaultHost || 'fortress.qtornado.com',
+        port: defaultPort === undefined ? 443 : defaultPort,
+        protocol: defaultProtocol || 'ssl',
       };
     default:
       return {

@@ -1,5 +1,5 @@
 import ElectrumClient, { Unspent } from 'electrum-client-sl';
-import { getBtcTxUrl, getScriptHash, satsToBtc, shiftInt } from './utils';
+import { btcToSats, getBtcTxUrl, getScriptHash, satsToBtc, shiftInt } from './utils';
 import {
   getBtcPayment,
   getBtcNetwork,
@@ -191,13 +191,14 @@ export async function tryBroadcast(client: ElectrumClient, tx: Transaction) {
 // Get Bitcoin fee rate from Electrum's "estimatefee" method.
 // Returns sats/vB fee rate for targeting 1-block confirmation
 export async function getFeeRate(client: ElectrumClient) {
-  const feePerKb = await client.blockchainEstimatefee(1);
-  if (feePerKb === -1) {
+  const btcPerKb = await client.blockchainEstimatefee(1);
+  if (btcPerKb === -1) {
     logger.error('Unable to get fee rate from Electrum.');
     return 1;
   }
-  const perByte = feePerKb * 1024;
-  return Math.ceil(perByte);
+  const satsPerKb = btcToSats(btcPerKb);
+  const satsPerByte = new BigNumber(satsPerKb).dividedBy(1024).toNumber();
+  return Math.ceil(satsPerByte);
 }
 
 export async function getBtcBalance() {

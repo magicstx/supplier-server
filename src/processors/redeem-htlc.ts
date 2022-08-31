@@ -42,9 +42,7 @@ export async function processFinalizedInbound(event: Event, client: RedisClient)
     };
   } catch (error) {
     l.error({ error, errorString: String(error) }, `Error redeeming HTLC: ${String(error)}`);
-    return {
-      error: String(error),
-    };
+    throw error;
   }
 }
 
