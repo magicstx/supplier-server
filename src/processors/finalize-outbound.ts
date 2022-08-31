@@ -85,6 +85,13 @@ export async function checkShouldFinalize(
   swapId: bigint,
   txid: string
 ): Promise<boolean> {
+  const btcIsPending = await withElectrumClient(async electrum => {
+    const tx = await electrum.blockchain_transaction_get(txid, true);
+    return typeof tx.confirmations === 'undefined';
+  });
+  if (btcIsPending) {
+    return false;
+  }
   const stxTxid = await getFinalizedOutbound(client, swapId);
   if (stxTxid === null) {
     return true;
