@@ -1,5 +1,12 @@
 # magic-supplier
 
+## 1.2.2
+
+### Patch Changes
+
+- 0c1f977: Fix to fetch transactions with unanchored state when processing events
+- 0c1f977: Fixed a network-config issue when redeeming inbound HTLC
+
 ## 1.2.1
 
 ### Patch Changes
