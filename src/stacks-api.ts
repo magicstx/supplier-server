@@ -1,6 +1,11 @@
 import 'cross-fetch/polyfill';
 import { fetch } from 'cross-fetch';
-import { AddressNonces, Transaction, TransactionEvent } from '@stacks/stacks-blockchain-api-types';
+import {
+  AddressNonces,
+  MempoolTransaction,
+  Transaction,
+  TransactionEvent,
+} from '@stacks/stacks-blockchain-api-types';
 import { getStxNetwork } from './config';
 import {
   fetchAccountTransactions,
@@ -8,7 +13,9 @@ import {
   fetchBlockByBurnBlockHeight,
   fetchContractEventsById,
   fetchCoreApiInfo,
-  fetchTransaction,
+  fetchJson,
+  generateUrl,
+  txEndpoint,
 } from 'micro-stacks/api';
 import ElectrumClient from 'electrum-client-sl';
 import { logger } from './logger';
@@ -202,6 +209,22 @@ export async function getNonce(address: string) {
 export interface EventListParams {
   event_offset?: number;
   event_limit?: number;
+  unanchored?: boolean;
+}
+
+export async function fetchTransaction({
+  txid,
+  event_offset,
+  event_limit,
+  url,
+  unanchored,
+}: EventListParams & { txid: string; url: string }) {
+  const path = generateUrl(`${txEndpoint(url)}/${txid}`, {
+    event_offset,
+    event_limit,
+    unanchored,
+  });
+  return fetchJson<Transaction | MempoolTransaction>(path);
 }
 
 export async function getTransaction(txid: string, eventParams: EventListParams = {}) {
@@ -209,6 +232,7 @@ export async function getTransaction(txid: string, eventParams: EventListParams 
   const tx = await fetchTransaction({
     txid,
     url: network.getCoreApiUrl(),
+    unanchored: true,
     ...eventParams,
   });
   return tx;

@@ -1,4 +1,4 @@
-import { getBtcAddress, getBtcSigner, getSupplierId } from '../config';
+import { getBtcAddress, getBtcNetwork, getBtcSigner, getSupplierId } from '../config';
 import { networks, Psbt, script as bScript, payments, opcodes } from 'bitcoinjs-lib';
 import { getRedeemedHTLC, setRedeemedHTLC, RedisClient } from '../store';
 import { logger as _logger } from '../logger';
@@ -55,8 +55,9 @@ export async function redeem(txid: string, preimage: Uint8Array) {
     const bridge = bridgeContract();
     const provider = stacksProvider();
     const swap = await provider.roOk(bridge.getFullInbound(hexToBytes(txid)));
+    const network = getBtcNetwork();
 
-    const psbt = new Psbt({ network: networks.regtest });
+    const psbt = new Psbt({ network });
     const signer = getBtcSigner();
     const address = getBtcAddress();
     const weight = 312;
