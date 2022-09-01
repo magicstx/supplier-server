@@ -21,6 +21,7 @@ import { withElectrumClient } from '../wallet';
 import { fetchAccountNonce } from '../stacks-api';
 import { hexToBytes } from 'micro-stacks/common';
 import { ExtractArgs } from '@clarigen/core';
+import type { Logger } from 'pino';
 
 type MintParams = ExtractArgs<BridgeContract['functions']['escrowSwap']>;
 type BlockParam = MintParams[0];
@@ -83,31 +84,31 @@ async function txData(client: ElectrumClient, txid: string) {
 export async function checkShouldFinalize(
   client: RedisClient,
   swapId: bigint,
-  txid: string
+  txid: string,
+  parentLog: Logger
 ): Promise<boolean> {
+  const log = parentLog.child({
+    step: 'checkShouldFinalize',
+  });
   const btcIsPending = await withElectrumClient(async electrum => {
     const tx = await electrum.blockchain_transaction_get(txid, true);
     return typeof tx.confirmations === 'undefined';
   });
   if (btcIsPending) {
+    log.info('Dont finalize - btc tx pending');
     return false;
   }
   const stxTxid = await getFinalizedOutbound(client, swapId);
   if (stxTxid === null) {
+    log.info('Should finalize - no current stx finalization tx');
     return true;
   }
+  log.setBindings({ stxTxid });
   const swap = await getOutboundSwap(swapId);
 
-  const log = logger.child({
-    topic: 'finalizeOutboundError',
-    swapId,
-    stxTxid,
-    txid,
-  });
-
   if (swap === null) {
-    await removePendingFinalizedOutbound(client, swapId, txid);
-    log.fatal('Trying to finalize non-existant swap');
+    // await removePendingFinalizedOutbound(client, swapId, txid);
+    log.fatal('Trying to finalize non-existant swap. Fork?');
     return false;
   }
 
@@ -115,16 +116,19 @@ export async function checkShouldFinalize(
   const { tx_status } = stxTx;
   switch (tx_status) {
     case 'pending': {
+      log.info('Dont finalize - stx already pending');
       return false;
     }
     case 'success': {
-      log.info({ finalizeOutboundState: 'success' });
+      log.info({ finalizeOutboundState: 'success' }, 'Dont finalize - complete!');
       await removePendingFinalizedOutbound(client, swapId, txid);
       return false;
     }
   }
 
   // Failed - should we try again? (yes until revoked)
+  log.setBindings({ tx_status });
+  log.error('Existing finalization tx failed.');
 
   const finalizeTxid = await getOutboundFinalizedTxid(swapId);
   if (finalizeTxid !== null) {
@@ -160,16 +164,16 @@ export async function finalizeOutbound({
 }) {
   const [idStr, txid] = key.split('::');
   const id = BigInt(idStr);
-  const shouldFinalize = await checkShouldFinalize(client, id, txid);
-  if (!shouldFinalize) {
-    return false;
-  }
   const log = logger.child({
     topic: 'finalizeOutboundSwap',
     swapId: id,
     btcTxid: txid,
     btcTx: getBtcTxUrl(txid),
   });
+  const shouldFinalize = await checkShouldFinalize(client, id, txid, log);
+  if (!shouldFinalize) {
+    return false;
+  }
   log.info(`Finalizing outbound ${key}`);
   const provider = stacksProvider();
   const bridge = bridgeContract();
