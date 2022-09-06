@@ -1,5 +1,12 @@
 # magic-supplier
 
+## 1.2.4
+
+### Patch Changes
+
+- 09d8c13: Adds scripts for adding xBTC funds and revoking expired outbound swaps
+- 09d8c13: Added better logging and logic to "finalize outbound swap" processor
+
 ## 1.2.3
 
 ### Patch Changes
