@@ -1,7 +1,7 @@
 import { privateKeyToStxAddress, StacksNetworkVersion } from 'micro-stacks/crypto';
 import { hashSha256 } from 'micro-stacks/crypto-sha';
 import BigNumber from 'bignumber.js';
-import { IntegerType } from 'micro-stacks/common';
+import { bytesToHex, IntegerType } from 'micro-stacks/common';
 import { getNetworkKey, getStxNetwork } from './config';
 
 export function reverseBuffer(buffer: Buffer): Buffer {
@@ -69,6 +69,10 @@ export function stxToUstx(stx: IntegerType) {
   return shiftInt(stx, 6).decimalPlaces(0);
 }
 
+export function ustxToStx(ustx: IntegerType) {
+  return shiftInt(ustx, -6).decimalPlaces(6);
+}
+
 // Add 0x to beginning of txid
 export function getTxId(txId: string) {
   return txId.startsWith('0x') ? txId : `0x${txId}`;
@@ -91,4 +95,10 @@ export function getBtcTxUrl(txId: string) {
   }
   const base = `https://mempool.space/`;
   return `${base}${network === 'mainnet' ? '' : 'testnet/'}tx/${txId}`;
+}
+
+// Returns true if txId === 0x00
+export function isRevokedTxid(txId: string | Uint8Array) {
+  const txidString = typeof txId === 'string' ? txId : bytesToHex(txId);
+  return txidString === '00';
 }
