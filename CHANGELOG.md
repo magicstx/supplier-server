@@ -1,5 +1,15 @@
 # magic-supplier
 
+## 1.3.0
+
+### Minor Changes
+
+- dc465e5: Fixed an issue when redeeming an inbound HTLC when the BTC prevout index was non-zero
+
+### Patch Changes
+
+- a632272: Adds script for updating fees
+
 ## 1.2.4
 
 ### Patch Changes
