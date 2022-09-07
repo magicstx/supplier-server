@@ -64,7 +64,7 @@ export async function redeem(txid: string, preimage: Uint8Array) {
 
     psbt.addInput({
       hash: txid,
-      index: 0,
+      index: Number(swap.outputIndex),
       nonWitnessUtxo: txHex,
       redeemScript: Buffer.from(swap.redeemScript),
     });
