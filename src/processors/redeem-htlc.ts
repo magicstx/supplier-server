@@ -2,7 +2,7 @@ import { getBtcAddress, getBtcNetwork, getBtcSigner, getSupplierId } from '../co
 import { networks, Psbt, script as bScript, payments, opcodes } from 'bitcoinjs-lib';
 import { getRedeemedHTLC, setRedeemedHTLC, RedisClient } from '../store';
 import { logger as _logger } from '../logger';
-import { getFeeRate, tryBroadcast, withElectrumClient } from '../wallet';
+import { getFeeRate, listUnspent, tryBroadcast, txWeight, withElectrumClient } from '../wallet';
 import { bridgeContract, stacksProvider } from '../stacks';
 import { bytesToHex, hexToBytes } from 'micro-stacks/common';
 import { getBtcTxUrl, satsToBtc } from '../utils';
@@ -58,9 +58,10 @@ export async function redeem(txid: string, preimage: Uint8Array) {
     const psbt = new Psbt({ network });
     const signer = getBtcSigner();
     const address = getBtcAddress();
-    const weight = 312;
-    const feeRate = await getFeeRate(client);
-    const fee = weight * feeRate;
+    const baseWeight = 312n;
+    const [unspents, feeRate] = await Promise.all([listUnspent(client), getFeeRate(client)]);
+    const size = baseWeight + txWeight(unspents.length, 1);
+    const fee = size * BigInt(feeRate);
 
     psbt.addInput({
       hash: txid,
@@ -69,9 +70,25 @@ export async function redeem(txid: string, preimage: Uint8Array) {
       redeemScript: Buffer.from(swap.redeemScript),
     });
 
+    let consolidateTotal = 0n;
+    psbt.addInputs(
+      await Promise.all(
+        unspents.map(async coin => {
+          const txHex = await client.blockchain_transaction_get(coin.tx_hash);
+          consolidateTotal += BigInt(coin.value);
+          return {
+            hash: coin.tx_hash,
+            index: coin.tx_pos,
+            nonWitnessUtxo: Buffer.from(txHex, 'hex'),
+          };
+        })
+      )
+    );
+
+    const outputAmount = consolidateTotal + swap.sats - fee;
     psbt.addOutput({
       address,
-      value: Number(swap.sats) - fee,
+      value: Number(outputAmount),
     });
     await psbt.signInputAsync(0, signer);
 
