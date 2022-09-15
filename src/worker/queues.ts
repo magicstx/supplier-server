@@ -39,35 +39,37 @@ const opts: QueueOptions = {
   },
 };
 
+function fixedBackoff(attempts: number, delay: number) {
+  return {
+    ...opts,
+    defaultJobOptions: {
+      attempts: attempts,
+      backoff: {
+        type: 'fixed',
+        delay: delay,
+      },
+    },
+  };
+}
+
+function fixedBackoffMins(attempts: number, delayMinutes: number) {
+  return fixedBackoff(attempts, delayMinutes * 60 * 1000);
+}
+
 export const eventQueue = new Queue<EventJob>('events', opts);
 
-export const finalizeInboundQueue = new Queue<FinalizeInboundJob>('finalize-inbound', {
-  ...opts,
-  defaultJobOptions: {
-    attempts: 12,
-    backoff: {
-      type: 'fixed',
-      delay: 10 * 60 * 1000, // attempt every 10 minutes
-    },
-  },
-});
+export const finalizeInboundQueue = new Queue<FinalizeInboundJob>(
+  'finalize-inbound',
+  fixedBackoffMins(12, 10)
+);
 
 export const sendOutboundQueue = new Queue<SendOutboundJob>('send-outbound', opts);
 
-export const finalizeOutboundQueue = new Queue('finalize-outbound', {
-  ...opts,
-  defaultJobOptions: {
-    attempts: 24,
-    backoff: {
-      type: 'fixed',
-      delay: 10 * 60 * 1000, // attempt every 10 minutes
-    },
-  },
-});
+export const finalizeOutboundQueue = new Queue('finalize-outbound', fixedBackoffMins(24, 10));
 
 export const eventCronQueue = new Queue('events-cron', opts);
 
-export const balancesQueue = new Queue('balance-check', opts);
+export const balancesQueue = new Queue('balance-check', fixedBackoffMins(12, 5));
 
 export const allQueues = [
   eventQueue,
