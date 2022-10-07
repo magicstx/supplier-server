@@ -1,5 +1,6 @@
 import Redis, { Redis as RedisClient } from 'ioredis';
 import { getNetworkKey } from './config';
+import { isNullish } from './utils';
 export type { Redis as RedisClient } from 'ioredis';
 
 export enum RedisKeys {
@@ -22,7 +23,7 @@ export function workerKeyPrefix() {
 
 export function getRedisUrl() {
   const url = process.env.REDIS_URL || process.env.REDISTOGO_URL;
-  if (typeof url === 'undefined') {
+  if (isNullish(url)) {
     return 'redis://127.0.0.1:6379';
   }
   return url;

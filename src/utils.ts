@@ -51,7 +51,7 @@ export function bpsToPercent(bps: IntegerType) {
 
 export function satsToBtc(sats: IntegerType, minDecimals?: number) {
   const n = new BigNumber(intToString(sats)).shiftedBy(-8).decimalPlaces(8);
-  if (typeof minDecimals === 'undefined') return n.toFormat();
+  if (isNullish(minDecimals)) return n.toFormat();
   const rounded = n.toFormat(minDecimals);
   const normal = n.toFormat();
   return rounded.length > normal.length ? rounded : normal;
@@ -101,4 +101,12 @@ export function getBtcTxUrl(txId: string) {
 export function isRevokedTxid(txId: string | Uint8Array) {
   const txidString = typeof txId === 'string' ? txId : bytesToHex(txId);
   return txidString === '00';
+}
+
+export function isNotNullish<T>(value?: T): value is NonNullable<T> {
+  return typeof value !== 'undefined' && value !== null;
+}
+
+export function isNullish<T>(value?: T | null): value is null | undefined {
+  return typeof value === 'undefined' || value === null;
 }

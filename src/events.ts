@@ -1,6 +1,7 @@
 import { contracts } from './clarigen/next';
 import { hexToCvValue, TypedAbiArg, TypedAbiFunction } from '@clarigen/core';
 import { ApiEvent, getTransactionEvent } from './stacks-api';
+import { isNullish } from './utils';
 
 type ResponseType<T> = T extends TypedAbiFunction<TypedAbiArg<unknown, string>[], infer R>
   ? R
@@ -91,7 +92,7 @@ export const isRevokeOutboundEvent = (val: Event): val is Event<RevokeOutboundPr
 
 export function getEventWithPrint<T extends Prints>(prints: Prints[], topic: T['topic']): T {
   const [found] = prints.filter(p => p.topic === topic);
-  if (typeof found === 'undefined') {
+  if (isNullish(found)) {
     throw new Error(`No print with topic '${topic}'`);
   }
   return found as T;

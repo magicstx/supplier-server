@@ -19,7 +19,7 @@ import {
 } from 'micro-stacks/api';
 import ElectrumClient from 'electrum-client-sl';
 import { logger } from './logger';
-import { getTxUrl } from './utils';
+import { getTxUrl, isNotNullish } from './utils';
 import { bridgeContract } from './stacks';
 import { CoreNodeEventType, filterEvents, hexToCvValue, SmartContractEvent } from '@clarigen/core';
 import { Prints, Event, getPrintFromRawEvent } from './events';
@@ -79,7 +79,7 @@ export async function findStacksBlockAtHeight(
     electrumClient.blockchain_block_header(height),
     getStacksHeight(height),
   ]);
-  if (typeof stacksHeight !== 'undefined') {
+  if (isNotNullish(stacksHeight)) {
     return {
       header,
       prevBlocks,
