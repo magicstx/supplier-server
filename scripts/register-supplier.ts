@@ -1,7 +1,7 @@
 import { prompt } from 'inquirer';
 import 'cross-fetch/polyfill';
 import { stacksProvider, bridgeContract } from '../src/stacks';
-import { bpsToPercent, btcToSats, satsToBtc, shiftInt, stxToUstx } from '../src/utils';
+import { bpsToPercent, btcToSats, satsToBtc } from '../src/utils';
 import {
   getBtcAddress,
   getNetworkKey,
@@ -13,8 +13,6 @@ import {
 import { PostConditionMode } from 'micro-stacks/transactions';
 import BigNumber from 'bignumber.js';
 import { getBalances } from '../src/wallet';
-import { AnchorMode } from 'micro-stacks/transactions';
-import { bytesToHex } from 'micro-stacks/common';
 import { askStxFee, broadcastAndLog } from './helpers';
 
 interface Answers {

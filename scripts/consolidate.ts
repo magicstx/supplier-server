@@ -1,7 +1,7 @@
 import { getFeeRate, listUnspent, txWeight, withElectrumClient } from '../src/wallet';
 import { Psbt } from 'bitcoinjs-lib';
 import { getBtcPayment, getBtcNetwork, getBtcSigner } from '../src/config';
-import { btcToSats, getBtcTxUrl, satsToBtc } from '../src/utils';
+import { getBtcTxUrl, satsToBtc } from '../src/utils';
 import { prompt } from 'inquirer';
 
 async function run() {

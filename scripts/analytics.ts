@@ -3,8 +3,6 @@ import { getContractEventsUntil } from '../src/stacks-api';
 import { writeFile, readFile } from 'fs/promises';
 import {
   isFinalizeInboundEvent,
-  Prints,
-  Event,
   isEscrowEvent,
   isInitiateOutboundEvent,
   isFinalizeOutboundEvent,
@@ -13,7 +11,7 @@ import {
 } from '../src/events';
 import { resolve } from 'path';
 import { satsToBtc } from '../src/utils';
-import { bytesToHex, hexToBytes } from 'micro-stacks/common';
+import { bytesToHex } from 'micro-stacks/common';
 import { parseEventsJSON, stringifyEvents } from './helpers';
 
 const [command] = process.argv.slice(2);

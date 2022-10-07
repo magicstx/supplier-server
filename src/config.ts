@@ -1,7 +1,6 @@
 import { ECPair, networks, payments } from 'bitcoinjs-lib';
 import { StacksNetworkVersion } from 'micro-stacks/crypto';
 import { StacksMainnet, StacksMocknet, StacksNetwork, StacksTestnet } from 'micro-stacks/network';
-import { getPublicKey as _getPublicKey } from 'noble-secp256k1';
 import { logger } from './logger';
 import { bridgeContract, stacksProvider } from './stacks';
 import { makeStxAddress } from './utils';

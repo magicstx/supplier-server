@@ -1,5 +1,5 @@
-import Queue, { Queue as QueueType, QueueOptions } from 'bull';
-import { Event, FinalizeInboundPrint, InitiateOutboundPrint, SerializedEvent } from '../events';
+import Queue, { QueueOptions } from 'bull';
+import { FinalizeInboundPrint, InitiateOutboundPrint, SerializedEvent } from '../events';
 import { createWorkerRedisClient } from '../store';
 import Redis from 'ioredis';
 

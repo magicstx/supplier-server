@@ -9,12 +9,12 @@ import {
   getStxAddress,
   getSupplierId,
 } from './config';
-import { payments, Psbt, Transaction } from 'bitcoinjs-lib';
+import { Psbt, Transaction } from 'bitcoinjs-lib';
 import { logger } from './logger';
 import { fetchAccountBalances } from 'micro-stacks/api';
 import { bridgeContract, stacksProvider, xbtcAssetId } from './stacks';
 import BigNumber from 'bignumber.js';
-import { bytesToHex, hexToBytes } from 'micro-stacks/common';
+import { hexToBytes } from 'micro-stacks/common';
 
 export const electrumClient = () => {
   const envConfig = getElectrumConfig();

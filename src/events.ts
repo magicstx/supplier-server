@@ -149,7 +149,7 @@ export function getPrintFromRawEvent<T = Prints>(event: ApiEvent): Event<T> | nu
 
 export async function deserializeEvent<T>(eventData: SerializedEvent<T>): Promise<Event<T>> {
   const { index, txid } = eventData;
-  const apiEvent = await getTransactionEvent(eventData.txid, eventData.index);
+  const apiEvent = await getTransactionEvent(txid, index);
   const event = getPrintFromRawEvent<T>(apiEvent);
   if (event === null) throw new Error('Invalid event');
   return event;

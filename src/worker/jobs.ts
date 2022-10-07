@@ -1,5 +1,3 @@
-import { Job } from 'bull';
-import { EventJob } from './queues';
 import {
   isFinalizeInboundEvent,
   isInitiateOutboundEvent,
@@ -8,14 +6,7 @@ import {
   serializeEvent,
   Event,
 } from '../events';
-import {
-  eventCronQueue,
-  eventQueue,
-  finalizeInboundQueue,
-  finalizeOutboundQueue,
-  sendOutboundQueue,
-  balancesQueue,
-} from './queues';
+import { eventQueue, finalizeInboundQueue, sendOutboundQueue } from './queues';
 import { getLastSeenTxid, RedisClient, setLastSeenTxid } from '../store';
 import { fetchCoreInfo, getContractEventsUntil } from '../stacks-api';
 import { logger } from '../logger';

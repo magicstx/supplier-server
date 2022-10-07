@@ -2,7 +2,7 @@ import { prompt } from 'inquirer';
 import { PostConditionMode } from 'micro-stacks/transactions';
 import { getSupplierId } from '../src/config';
 import { stacksProvider, bridgeContract } from '../src/stacks';
-import { btcToSats, satsToBtc, shiftInt } from '../src/utils';
+import { btcToSats, satsToBtc } from '../src/utils';
 import { getStxBalance } from '../src/wallet';
 import { askStxFee, broadcastAndLog } from './helpers';
 

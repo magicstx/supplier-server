@@ -4,7 +4,6 @@ import {
   AddressNonces,
   MempoolTransaction,
   Transaction,
-  TransactionEvent,
 } from '@stacks/stacks-blockchain-api-types';
 import { getStxNetwork } from './config';
 import {
@@ -21,9 +20,7 @@ import ElectrumClient from 'electrum-client-sl';
 import { logger } from './logger';
 import { getTxUrl, isNotNullish } from './utils';
 import { bridgeContract } from './stacks';
-import { CoreNodeEventType, filterEvents, hexToCvValue, SmartContractEvent } from '@clarigen/core';
-import { Prints, Event, getPrintFromRawEvent } from './events';
-import { cvToValue } from 'micro-stacks/clarity';
+import { Event, getPrintFromRawEvent } from './events';
 
 export async function getStacksBlock(
   hash: string

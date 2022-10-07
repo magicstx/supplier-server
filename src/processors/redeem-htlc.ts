@@ -1,5 +1,5 @@
 import { getBtcAddress, getBtcNetwork, getBtcSigner, getSupplierId } from '../config';
-import { networks, Psbt, script as bScript, payments, opcodes } from 'bitcoinjs-lib';
+import { Psbt, script as bScript, payments, opcodes } from 'bitcoinjs-lib';
 import { getRedeemedHTLC, setRedeemedHTLC, RedisClient } from '../store';
 import { logger as _logger } from '../logger';
 import { getFeeRate, tryBroadcast, withElectrumClient } from '../wallet';

@@ -8,17 +8,7 @@ import { getTxUrl, stxToUstx, ustxToStx } from '../src/utils';
 import { getStxBalance } from '../src/wallet';
 import { getStxNetwork, getStxPrivateKey } from '../src/config';
 import { bytesToHex, hexToBytes, IntegerType } from 'micro-stacks/common';
-import {
-  isFinalizeInboundEvent,
-  Prints,
-  Event,
-  isEscrowEvent,
-  isInitiateOutboundEvent,
-  isFinalizeOutboundEvent,
-  isRevokeInboundEvent,
-  isRevokeOutboundEvent,
-} from '../src/events';
-import { resolve } from 'path';
+import { Prints, Event } from '../src/events';
 
 type UnknownTx = ContractCallTyped<TypedAbiArg<unknown, string>[], unknown>;
 
