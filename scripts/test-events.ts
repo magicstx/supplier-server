@@ -10,7 +10,7 @@ async function run() {
       if (e.tx_id !== f.tx_id || e.event_index !== f.event_index) {
         throw new Error('Mismatch');
       }
-      const event = getPrintFromRawEvent(f);
+      getPrintFromRawEvent(f);
     })
   );
 }

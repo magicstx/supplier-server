@@ -1,6 +1,6 @@
 import { prompt } from 'inquirer';
 import 'cross-fetch/polyfill';
-import { stacksProvider, bridgeContract } from '../src/stacks';
+import { bridgeContract } from '../src/stacks';
 import { bpsToPercent, btcToSats, satsToBtc } from '../src/utils';
 import {
   getBtcAddress,
@@ -26,7 +26,6 @@ interface Answers {
 }
 
 async function run() {
-  const provider = stacksProvider();
   const bridge = bridgeContract();
 
   try {

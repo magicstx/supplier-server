@@ -13,7 +13,7 @@ const logger = _logger.child({ topic: 'redeemHTLC' });
 export async function processFinalizedInbound(event: Event, client: RedisClient) {
   const { print } = event;
   if (!isFinalizeInboundPrint(print)) return;
-  const { preimage, supplier } = print;
+  const { preimage } = print;
   if (print.supplier !== BigInt(getSupplierId())) return;
   const txidHex = bytesToHex(print.txid);
   const l = logger.child({
