@@ -1,6 +1,5 @@
 import 'cross-fetch/polyfill';
 import { getContractEventsUntil } from '../src/stacks-api';
-import { getQueryApi } from '../src/metrics';
 import { writeFile, readFile } from 'fs/promises';
 import {
   isFinalizeInboundEvent,
@@ -15,30 +14,9 @@ import {
 import { resolve } from 'path';
 import { satsToBtc } from '../src/utils';
 import { bytesToHex, hexToBytes } from 'micro-stacks/common';
+import { parseEventsJSON, stringifyEvents } from './helpers';
 
 const [command] = process.argv.slice(2);
-
-function replacer(key: string, value: any): any {
-  if (typeof value === 'bigint') {
-    return { __bigintval__: value.toString() };
-  } else if (value instanceof Uint8Array) {
-    console.log('is buff');
-    return { __buff__: bytesToHex(value) };
-  }
-  return value;
-}
-
-function reviver(key: string, value: any): any {
-  if (value != null && typeof value === 'object' && '__bigintval__' in value) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    return BigInt(value['__bigintval__']);
-  }
-  if (value != null && typeof value === 'object' && '__buff__' in value) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    return hexToBytes(value['__buff__']);
-  }
-  return value;
-}
 
 async function run() {
   const dataFile = resolve(__dirname, '../tmpdata/events.json');
@@ -46,14 +24,14 @@ async function run() {
   if (command === 'write') {
     const events = await getContractEventsUntil(null);
     console.log(`Found ${events.length} events`);
-    const json = JSON.stringify(events, replacer);
+    const json = stringifyEvents(events);
     await writeFile(dataFile, json, {
       encoding: 'utf-8',
     });
     return;
   } else if (command === 'pending') {
     const eventsJSON = await readFile(dataFile, { encoding: 'utf-8' });
-    const events = JSON.parse(eventsJSON, reviver) as Event<Prints>[];
+    const events = parseEventsJSON(eventsJSON);
     events.reverse();
 
     // const ins: string[] = [];
@@ -101,7 +79,7 @@ async function run() {
     return;
   }
   const eventsJSON = await readFile(dataFile, { encoding: 'utf-8' });
-  const events = JSON.parse(eventsJSON, reviver) as Event<Prints>[];
+  const events = parseEventsJSON(eventsJSON);
   console.log('Found events', events.length);
   let totalInbound = 0n;
   let totalOutbound = 0n;

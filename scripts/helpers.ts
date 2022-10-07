@@ -7,7 +7,18 @@ import { stacksProvider } from '../src/stacks';
 import { getTxUrl, stxToUstx, ustxToStx } from '../src/utils';
 import { getStxBalance } from '../src/wallet';
 import { getStxNetwork, getStxPrivateKey } from '../src/config';
-import { IntegerType } from 'micro-stacks/common';
+import { bytesToHex, hexToBytes, IntegerType } from 'micro-stacks/common';
+import {
+  isFinalizeInboundEvent,
+  Prints,
+  Event,
+  isEscrowEvent,
+  isInitiateOutboundEvent,
+  isFinalizeOutboundEvent,
+  isRevokeInboundEvent,
+  isRevokeOutboundEvent,
+} from '../src/events';
+import { resolve } from 'path';
 
 type UnknownTx = ContractCallTyped<TypedAbiArg<unknown, string>[], unknown>;
 
@@ -80,4 +91,34 @@ export async function getFeeEstimate(tx: UnknownTx, options: Partial<ContractCal
   });
   const fee = transaction.auth.spendingCondition.fee;
   return fee;
+}
+
+function replacer(key: string, value: any): any {
+  if (typeof value === 'bigint') {
+    return { __bigintval__: value.toString() };
+  } else if (value instanceof Uint8Array) {
+    return { __buff__: bytesToHex(value) };
+  }
+  return value;
+}
+
+function reviver(key: string, value: any): any {
+  if (value != null && typeof value === 'object' && '__bigintval__' in value) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    return BigInt(value['__bigintval__']);
+  }
+  if (value != null && typeof value === 'object' && '__buff__' in value) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    return hexToBytes(value['__buff__']);
+  }
+  return value;
+}
+
+export function stringifyEvents(events: Event<Prints>[]) {
+  return JSON.stringify(events, replacer);
+}
+
+export function parseEventsJSON(json: string) {
+  const events = JSON.parse(json, reviver) as Event<Prints>[];
+  return events;
 }
