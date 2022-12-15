@@ -1,5 +1,5 @@
 import { getBtcAddress, getBtcNetwork, getBtcSigner, getSupplierId } from '../config';
-import { networks, Psbt, script as bScript, payments, opcodes } from 'bitcoinjs-lib';
+import { Psbt, script as bScript, payments, opcodes } from 'bitcoinjs-lib';
 import { getRedeemedHTLC, setRedeemedHTLC, RedisClient } from '../store';
 import { logger as _logger } from '../logger';
 import { getFeeRate, tryBroadcast, withElectrumClient } from '../wallet';
@@ -13,7 +13,7 @@ const logger = _logger.child({ topic: 'redeemHTLC' });
 export async function processFinalizedInbound(event: Event, client: RedisClient) {
   const { print } = event;
   if (!isFinalizeInboundPrint(print)) return;
-  const { preimage, supplier } = print;
+  const { preimage } = print;
   if (print.supplier !== BigInt(getSupplierId())) return;
   const txidHex = bytesToHex(print.txid);
   const l = logger.child({

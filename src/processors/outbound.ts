@@ -1,5 +1,5 @@
 import { networks, payments } from 'bitcoinjs-lib';
-import { bytesToBigInt, bytesToHex } from 'micro-stacks/common';
+import { bytesToBigInt } from 'micro-stacks/common';
 import { getBtcNetwork, getSupplierId } from '../config';
 import {
   getSentOutbound,

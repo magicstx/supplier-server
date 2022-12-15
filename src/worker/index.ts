@@ -111,5 +111,5 @@ export function initWorkerThread() {
 
   void finalizeOutboundQueue.add({}, { repeat: { every: 120_000 } });
   void eventCronQueue.add({}, { repeat: { every: 120_000 } });
-  void balancesQueue.add({}, { repeat: { every: 60_000 } });
+  void balancesQueue.add({}, { repeat: { every: 300_000 } });
 }

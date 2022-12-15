@@ -40,3 +40,6 @@ yarn-error.log*
 
 settings/Testnet.toml
 scripts/migrate-redis.ts
+scripts/accounting.ts
+
+tmpdata

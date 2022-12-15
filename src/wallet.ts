@@ -1,5 +1,5 @@
 import ElectrumClient, { Unspent } from 'electrum-client-sl';
-import { btcToSats, getBtcTxUrl, getScriptHash, satsToBtc, shiftInt } from './utils';
+import { btcToSats, getBtcTxUrl, getScriptHash, isNotNullish, shiftInt } from './utils';
 import {
   getBtcPayment,
   getBtcNetwork,
@@ -9,12 +9,12 @@ import {
   getStxAddress,
   getSupplierId,
 } from './config';
-import { payments, Psbt, Transaction } from 'bitcoinjs-lib';
+import { Psbt, Transaction } from 'bitcoinjs-lib';
 import { logger } from './logger';
 import { fetchAccountBalances } from 'micro-stacks/api';
 import { bridgeContract, stacksProvider, xbtcAssetId } from './stacks';
 import BigNumber from 'bignumber.js';
-import { bytesToHex, hexToBytes } from 'micro-stacks/common';
+import { hexToBytes } from 'micro-stacks/common';
 
 export const electrumClient = () => {
   const envConfig = getElectrumConfig();
@@ -136,7 +136,7 @@ export async function sendBtc(opts: SendBtc) {
 
   const final = psbt.extractTransaction();
   const hex = hexToBytes(final.toHex());
-  if (typeof opts.maxSize !== 'undefined' && hex.length > opts.maxSize) {
+  if (isNotNullish(opts.maxSize) && hex.length > opts.maxSize) {
     logger.error(
       {
         topic: 'btcTxSize',
